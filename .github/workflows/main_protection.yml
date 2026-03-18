@@ -1,0 +1,21 @@
+name: Enforce main only from development
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show refs
+        run: |
+          echo "Base branch: ${{ github.base_ref }}"
+          echo "Head branch: ${{ github.head_ref }}"
+
+      - name: Fail if source is not development
+        if: ${{ github.head_ref != 'development' }}
+        run: |
+          echo "Only pull requests from 'development' into 'main' are allowed."
+          exit 1
