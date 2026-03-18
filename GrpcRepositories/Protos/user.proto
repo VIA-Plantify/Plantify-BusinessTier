@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcRepositories";
+
+package user;
+import "google/protobuf/empty.proto";
+message UserResponse{
+  string name = 1;
+  string username = 2;
+  string password = 3;
+  string email = 4;
+}
+message CreateUserRequest{
+  string name = 1;
+  string username = 2;
+  string password = 3;
+  string email = 4;
+}
+message UpdateUserRequest{
+  string name = 1;
+  string username = 2;
+  string password = 3;
+  string email = 4;
+}
+message DeleteUserRequest{
+  string username = 1;
+  string email = 2;
+}
+message GetUserRequest{
+  string username = 1;
+  string email = 2;
+}
+message GetManyUserResponse{
+  repeated UserResponse users = 1;
+}
+service UserServiceProto {
+  rpc Create(CreateUserRequest) returns (UserResponse);
+  rpc Update(UpdateUserRequest) returns (google.protobuf.Empty);
+  rpc Delete(DeleteUserRequest) returns (google.protobuf.Empty);
+  rpc Get(GetUserRequest) returns (UserResponse);
+  rpc GetAll(google.protobuf.Empty) returns (GetManyUserResponse);
+}
