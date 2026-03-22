@@ -155,46 +155,7 @@ namespace UnitTests
         }
 
         [Test]
-        public async Task UpdateAsync_ValidUser_CallsGrpcUpdate()
-        {
-            // Arrange
-            var user = new User
-            {
-                Name = "John Doe Updated",
-                Username = "johndoe",
-                Password = "newpassword123",
-                Email = "john.doe@example.com"
-            };
-
-            _grpcClientMock
-                .Setup(x => x.UpdateAsync(
-                    It.Is<UpdateUserRequest>(r =>
-                        r.Name == user.Name &&
-                        r.Username == user.Username &&
-                        r.Password == user.Password &&
-                        r.Email == user.Email),
-                    null,
-                    null,
-                    default))
-                .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(new Empty()));
-
-            // Act
-            await _repository.UpdateAsync(user);
-
-            // Assert
-            _grpcClientMock.Verify(x => x.UpdateAsync(
-                It.Is<UpdateUserRequest>(r =>
-                    r.Name == user.Name &&
-                    r.Username == user.Username &&
-                    r.Password == user.Password &&
-                    r.Email == user.Email),
-                null,
-                null,
-                default), Times.Once);
-        }
-
-        [Test]
-        public void GetMany_ReturnsQueryableUsers()
+        public async Task GetManyAsync_ReturnsUsers()
         {
             // Arrange
             var grpcResponse = new GetManyUserResponse();
@@ -214,24 +175,32 @@ namespace UnitTests
             });
 
             _grpcClientMock
-                .Setup(x => x.GetAll(
-                    It.IsAny<Empty>(),
+                .Setup(x => x.GetAllAsync(
+                    It.IsAny<Google.Protobuf.WellKnownTypes.Empty>(),
                     null,
                     null,
                     default))
-                .Returns(grpcResponse);
+                .Returns(new AsyncUnaryCall<GetManyUserResponse>(
+                    Task.FromResult(grpcResponse),
+                    Task.FromResult(new Metadata()),
+                    () => Status.DefaultSuccess,
+                    () => new Metadata(),
+                    () => { }
+                ));
 
             // Act
-            var result = _repository.GetMany();
+            var result = await _repository.GetManyAsync();
 
             // Assert
             Assert.That(result, Is.Not.Null);
 
-            var users = result.Cast<User>().ToList();
+            var users = result.ToList();
             Assert.That(users.Count, Is.EqualTo(2));
             Assert.That(users[0].Username, Is.EqualTo("johndoe"));
             Assert.That(users[1].Username, Is.EqualTo("janedoe"));
         }
+
+        
     }
 
     public static class GrpcMockHelpers

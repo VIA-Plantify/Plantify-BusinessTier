@@ -9,5 +9,5 @@ public interface IUserRepository
     Task<User> GetByUsernameAsync(string username);
     Task DeleteAsync(string username);
     Task UpdateAsync(User user);
-    IQueryable GetMany();
+    Task<IEnumerable<User>> GetManyAsync();
 }
