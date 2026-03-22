@@ -1,0 +1,11 @@
+﻿services:
+  webapi:
+    image: webapi
+    build:
+      context: ..
+      dockerfile: WebAPI/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    command: sleep infinity
+    user: root
