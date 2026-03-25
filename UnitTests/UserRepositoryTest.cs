@@ -267,6 +267,167 @@ namespace UnitTests
                 null,
                 default), Times.Once);
         }
+        public void Test_CreateAsync_UserExists()
+{
+    var user = new User
+    {
+        Name = "John Doe",
+        Username = "johndoe",
+        Password = "password123",
+        Email = "john.doe@example.com"
+    };
+
+    var grpcResponse = new UserResponse
+    {
+        Name = user.Name,
+        Username = user.Username,
+        Password = user.Password,
+        Email = user.Email
+    };
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Username == user.Username),
+            null,
+            null,
+            default))
+        .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(grpcResponse));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.CreateAsync(user));
+
+    _grpcClientMock.Verify(x => x.CreateAsync(
+        It.IsAny<CreateUserRequest>(),
+        null,
+        null,
+        default), Times.Never);
+}
+
+[Test]
+public void Test_GetByEmailAsync_UserMissing()
+{
+    var email = "john.doe@example.com";
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Email == email),
+            null,
+            null,
+            default))
+        .Returns(GrpcMockHelpers.CreateAsyncUnaryCall<UserResponse>(null));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.GetByEmailAsync(email));
+}
+
+[Test]
+public void Test_GetByEmailAsync_UserLookupThrows()
+{
+    var email = "john.doe@example.com";
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Email == email),
+            null,
+            null,
+            default))
+        .Throws(new RpcException(new Status(StatusCode.NotFound, "User not found")));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.GetByEmailAsync(email));
+}
+
+[Test]
+public void Test_GetByUsernameAsync_UserMissing()
+{
+    var username = "johndoe";
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Username == username),
+            null,
+            null,
+            default))
+        .Returns(GrpcMockHelpers.CreateAsyncUnaryCall<UserResponse>(null));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.GetByUsernameAsync(username));
+}
+
+[Test]
+public void Test_GetByUsernameAsync_UserLookupThrows()
+{
+    var username = "johndoe";
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Username == username),
+            null,
+            null,
+            default))
+        .Throws(new RpcException(new Status(StatusCode.NotFound, "User not found")));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.GetByUsernameAsync(username));
+}
+
+[Test]
+public void Test_UpdateAsync_UserMissing()
+{
+    var user = new User
+    {
+        Name = "John Doe Updated",
+        Username = "johndoe",
+        Password = "newpassword123",
+        Email = "john.doe@example.com"
+    };
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Username == user.Username),
+            null,
+            null,
+            default))
+        .Returns(GrpcMockHelpers.CreateAsyncUnaryCall<UserResponse>(null));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.UpdateAsync(user));
+
+    _grpcClientMock.Verify(x => x.UpdateAsync(
+        It.IsAny<UpdateUserRequest>(),
+        null,
+        null,
+        default), Times.Never);
+}
+
+[Test]
+public void Test_UpdateAsync_UserLookupThrows()
+{
+    var user = new User
+    {
+        Name = "John Doe Updated",
+        Username = "johndoe",
+        Password = "newpassword123",
+        Email = "john.doe@example.com"
+    };
+
+    _grpcClientMock
+        .Setup(x => x.GetAsync(
+            It.Is<GetUserRequest>(r => r.Username == user.Username),
+            null,
+            null,
+            default))
+        .Throws(new RpcException(new Status(StatusCode.NotFound, "User not found")));
+
+    Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await _repository.UpdateAsync(user));
+
+    _grpcClientMock.Verify(x => x.UpdateAsync(
+        It.IsAny<UpdateUserRequest>(),
+        null,
+        null,
+        default), Times.Never);
+}
     }
     
     public static class GrpcMockHelpers

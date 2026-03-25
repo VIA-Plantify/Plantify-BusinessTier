@@ -17,8 +17,6 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
         }
         catch (InvalidOperationException)
         {
-
-            // User does not exist, goes here.
             var response = await _client.CreateAsync(new CreateUserRequest
             {
                 Name = user.Name,
@@ -45,7 +43,11 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
         }
         catch (InvalidOperationException ex)
         {
-            throw new InvalidOperationException($"User with the following email: {email} was not found.");
+            throw new InvalidOperationException($"User with email {email} not found.");
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"User with email {email} not found.");
         }
     }
 
@@ -57,10 +59,14 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
             {
                 Username = username
             });
-
+            
             return ParseUserResponseToEntity(response);
         }
         catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException($"User with username {username} not found.");
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
             throw new InvalidOperationException($"User with username {username} not found.");
         }
@@ -86,7 +92,7 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
         }
     }
 
-    public async Task DeleteAsync(string username)
+    public async Task DeleteAsync(string? username)
     { 
         await _client.DeleteAsync(new DeleteUserRequest
         {
@@ -103,9 +109,9 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
 
     private User ParseUserResponseToEntity(UserResponse userResponse)
     {
-        if (userResponse == null)
+        if (CheckResponse(userResponse))
         {
-            throw new InvalidOperationException("Cannot parse null object");
+            throw new InvalidOperationException("User response is null or empty.");
         }
         return new User()
         {
@@ -114,5 +120,12 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
             Password = userResponse.Password,
             Username = userResponse.Username
         };
+    }
+
+    private bool CheckResponse(UserResponse? userResponse)
+    {
+        return userResponse is null || string.IsNullOrWhiteSpace(userResponse?.Username) ||
+               string.IsNullOrWhiteSpace(userResponse?.Email);
+
     }
 }
