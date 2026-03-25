@@ -13,7 +13,7 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
     {
         try
         {
-            var exists = await GetByUsernameAsync(user.Username);
+            await GetByUsernameAsync(user.Username);
         }
         catch (InvalidOperationException)
         {
