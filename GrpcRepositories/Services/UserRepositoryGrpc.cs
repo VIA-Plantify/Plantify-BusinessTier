@@ -13,48 +13,64 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
     {
         try
         {
-            await GetByUsernameAsync(user.Username);
-            
-            // User exists, goes here.
-            throw new InvalidOperationException($"User with email {user.Email} already exists.");
+            var exists = await GetByUsernameAsync(user.Username);
         }
-        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
-        { 
+        catch (InvalidOperationException)
+        {
+
             // User does not exist, goes here.
             var response = await _client.CreateAsync(new CreateUserRequest
-            { 
+            {
                 Name = user.Name,
                 Username = user.Username,
                 Password = user.Password,
                 Email = user.Email
             });
-                    
+
             return ParseUserResponseToEntity(response);
         }
+        throw new InvalidOperationException($"User with username {user.Username} already exists.");
     }
 
     public async Task<User> GetByEmailAsync(string email)
     {
-        var response = await _client.GetAsync(new GetUserRequest
+        try
         {
-            Email = email
-        });
+            var response = await _client.GetAsync(new GetUserRequest
+            {
+                Email = email
+            });
 
-        return ParseUserResponseToEntity(response);
+            return ParseUserResponseToEntity(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException($"User with the following email: {email} was not found.");
+        }
     }
 
     public async Task<User> GetByUsernameAsync(string username)
     {
-        var response = await _client.GetAsync(new GetUserRequest
+        try
         {
-            Username = username
-        });
+            var response = await _client.GetAsync(new GetUserRequest
+            {
+                Username = username
+            });
 
-        return ParseUserResponseToEntity(response);
-    }
+            return ParseUserResponseToEntity(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException($"User with username {username} not found.");
+        }
+}
 
     public async Task UpdateAsync(User user)
     {
+        try
+        {
+            var response = await GetByUsernameAsync(user.Username);
         await _client.UpdateAsync(new UpdateUserRequest
         {
             Name = user.Name,
@@ -62,8 +78,14 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
             Password = user.Password,
             Email = user.Email
         });
+        
+        }
+        catch(InvalidOperationException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
-    
+
     public async Task DeleteAsync(string username)
     { 
         await _client.DeleteAsync(new DeleteUserRequest
@@ -80,7 +102,11 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
 
 
     private User ParseUserResponseToEntity(UserResponse userResponse)
-    { 
+    {
+        if (userResponse == null)
+        {
+            throw new InvalidOperationException("Cannot parse null object");
+        }
         return new User()
         {
             Email = userResponse.Email,
