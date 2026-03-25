@@ -5,7 +5,7 @@
       dockerfile: .devcontainer/Dockerfile
     container_name: businessdev
     volumes:
-      - .:/workspace:cached
+      - .:/workspace
     working_dir: /workspace
     command: sleep infinity
     user: root
