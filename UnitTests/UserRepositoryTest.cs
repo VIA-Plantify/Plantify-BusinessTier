@@ -43,7 +43,14 @@ namespace UnitTests
                 Password = user.Password,
                 Email = user.Email
             };
-
+            _grpcClientMock
+                .Setup(x => x.GetAsync(
+                    It.Is<GetUserRequest>(r => r.Username == user.Username),
+                    null,
+                    null,
+                    default))
+                .Returns(GrpcMockHelpers.CreateAsyncUnaryCall<UserResponse>(null));
+            
             _grpcClientMock
                 .Setup(x => x.CreateAsync(
                     It.Is<CreateUserRequest>(r =>
@@ -200,9 +207,68 @@ namespace UnitTests
             Assert.That(users[1].Username, Is.EqualTo("janedoe"));
         }
 
-        
-    }
+        [Test]
+        public async Task UpdateAsync_ValidUser_CallsGrpcUpdate()
+        {
+            // Arrange
+            var user = new User
+            {
+                Name = "John Doe Updated",
+                Username = "johndoe",
+                Password = "newpassword123",
+                Email = "john.doe@example.com"
+            };
 
+            var existingUserResponse = new UserResponse
+            {
+                Name = "John Doe",
+                Username = "johndoe",
+                Password = "oldpassword",
+                Email = "john.doe@example.com"
+            };
+
+            _grpcClientMock
+                .Setup(x => x.GetAsync(
+                    It.Is<GetUserRequest>(r => r.Username == user.Username),
+                    null,
+                    null,
+                    default))
+                .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(existingUserResponse));
+
+            _grpcClientMock
+                .Setup(x => x.UpdateAsync(
+                    It.Is<UpdateUserRequest>(r =>
+                        r.Name == user.Name &&
+                        r.Username == user.Username &&
+                        r.Password == user.Password &&
+                        r.Email == user.Email),
+                    null,
+                    null,
+                    default))
+                .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(new Empty()));
+
+            // Act
+            await _repository.UpdateAsync(user);
+
+            // Assert
+            _grpcClientMock.Verify(x => x.GetAsync(
+                It.Is<GetUserRequest>(r => r.Username == user.Username),
+                null,
+                null,
+                default), Times.Once);
+
+            _grpcClientMock.Verify(x => x.UpdateAsync(
+                It.Is<UpdateUserRequest>(r =>
+                    r.Name == user.Name &&
+                    r.Username == user.Username &&
+                    r.Password == user.Password &&
+                    r.Email == user.Email),
+                null,
+                null,
+                default), Times.Once);
+        }
+    }
+    
     public static class GrpcMockHelpers
     {
         public static AsyncUnaryCall<T> CreateAsyncUnaryCall<T>(T response)
@@ -215,4 +281,5 @@ namespace UnitTests
                 () => { });
         }
     }
+    
 }
