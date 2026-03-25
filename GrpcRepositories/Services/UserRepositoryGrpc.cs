@@ -92,7 +92,7 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
         }
     }
 
-    public async Task DeleteAsync(string? username)
+    public async Task DeleteAsync(string username)
     { 
         await _client.DeleteAsync(new DeleteUserRequest
         {
@@ -107,7 +107,7 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
     }
 
 
-    private User ParseUserResponseToEntity(UserResponse userResponse)
+    private User ParseUserResponseToEntity(UserResponse? userResponse)
     {
         if (CheckResponse(userResponse))
         {
