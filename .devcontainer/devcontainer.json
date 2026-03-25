@@ -1,11 +1,9 @@
 {
-  "name": "C# Dev",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
+  "name": "C# Business Dev",
+  "dockerComposeFile": "../docker-compose-business.yml",
+  "service": "businessdev",
   "workspaceFolder": "/workspace",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "shutdownAction": "none",
   "updateRemoteUserUID": false,
   "customizations": {
     "vscode": {
