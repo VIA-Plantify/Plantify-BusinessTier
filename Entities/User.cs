@@ -67,22 +67,6 @@ public class User
     public string Password
     {
         get => _password;
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Password cannot be empty.");
-
-           //No length check because this will most of the time represent the 256 character hash
-            if (!Regex.IsMatch(value, @"[a-z]"))
-                throw new ArgumentException("Password must contain at least one lowercase letter.");
-
-            if (!Regex.IsMatch(value, @"[A-Z]"))
-                throw new ArgumentException("Password must contain at least one uppercase letter.");
-
-            if (!Regex.IsMatch(value, @"[0-9]"))
-                throw new ArgumentException("Password must contain at least one digit.");
-
-            _password = value;
-        }
+        set => _password = value; //Password check inside webapi , here will be stored the hash
     }
 }
