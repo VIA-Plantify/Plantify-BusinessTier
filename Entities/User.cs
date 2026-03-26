@@ -1,9 +1,93 @@
-﻿namespace Entities;
+﻿using System.Text.RegularExpressions;
+
+namespace Entities;
 
 public class User
 {
-    public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = "email@default.com";
-    public string Password { get; set; } = "DefaultPassword123!";
-    public string Username { get; set; } = string.Empty;
+    private string _name = string.Empty;
+    private string _username = string.Empty;
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Name cannot be empty.");
+
+            if (value.Length < 3)
+                throw new ArgumentException("Name must be at least 3 characters.");
+
+            if (value.Length > 64)
+                throw new ArgumentException("Name cannot exceed 64 characters.");
+
+            _name = value;
+        }
+    }
+
+    public string Username
+    {
+        get => _username;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Username cannot be empty.");
+
+            if (value.Length < 3)
+                throw new ArgumentException("Username must be at least 3 characters.");
+
+            if (value.Length > 20)
+                throw new ArgumentException("Username cannot exceed 20 characters.");
+
+            if (value.Contains(" "))
+                throw new ArgumentException("Username cannot contain spaces.");
+
+            _username = value;
+        }
+    }
+
+    public string Email
+    {
+        get => _email;
+        set
+        {
+            // [ALT3]
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Email cannot be empty.");
+
+            if (!Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                throw new ArgumentException("Email is invalid. Format: user@host.domain");
+
+            _email = value;
+        }
+    }
+
+    public string Password
+    {
+        get => _password;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Password cannot be empty.");
+
+            if (value.Length < 8)
+                throw new ArgumentException("Password should contain at least 8 characters.");
+
+            if (value.Length > 50)
+                throw new ArgumentException("Password should contain less than 50 characters.");
+
+            if (!Regex.IsMatch(value, @"[a-z]"))
+                throw new ArgumentException("Password must contain at least one lowercase letter.");
+
+            if (!Regex.IsMatch(value, @"[A-Z]"))
+                throw new ArgumentException("Password must contain at least one uppercase letter.");
+
+            if (!Regex.IsMatch(value, @"[0-9]"))
+                throw new ArgumentException("Password must contain at least one digit.");
+
+            _password = value;
+        }
+    }
 }
