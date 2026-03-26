@@ -4,7 +4,7 @@ set -Eeuo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 COMPOSE_FILE="${PROJECT_ROOT}/docker-compose-business.yml"
-PROJECT_NAME="plantify-businesstier"
+PROJECT_NAME="plantify-businesstier_plantify-businesstier"
 SERVICE="webapi"
 CONTAINER_NAME="webapi"
 
