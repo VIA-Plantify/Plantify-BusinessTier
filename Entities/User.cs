@@ -72,12 +72,7 @@ public class User
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Password cannot be empty.");
 
-            if (value.Length < 8)
-                throw new ArgumentException("Password should contain at least 8 characters.");
-
-            if (value.Length > 50)
-                throw new ArgumentException("Password should contain less than 50 characters.");
-
+           //No length check because this will most of the time represent the 256 character hash
             if (!Regex.IsMatch(value, @"[a-z]"))
                 throw new ArgumentException("Password must contain at least one lowercase letter.");
 
