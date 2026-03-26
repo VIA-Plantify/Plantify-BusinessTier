@@ -1,6 +1,4 @@
-﻿name: plantify-businesstier
-
-services:
+﻿services:
   businessdev:
     build:
       context: .
