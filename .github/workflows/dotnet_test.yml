@@ -9,29 +9,21 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
- 
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.0.x
-    - name: Find solution
-      shell: bash
-      run: |
-          SOLUTION=$(find . -maxdepth 3 -name "*.sln" | head -n 1)
-          if [ -z "$SOLUTION" ]; then
-            echo "No .sln file found"
-            exit 1
-          fi
-          echo "SOLUTION=$SOLUTION" >> $GITHUB_ENV
-        
-    - name: Restore dependencies
-      run: dotnet restore "$SOLUTION"
-    - name: Build
-      run: dotnet build "$SOLUTION" --no-restore
-    - name: Test
-      run: dotnet test "$SOLUTION" --no-build --verbosity normal
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ./*.sln
+
+      - name: Build
+        run: dotnet build ./*.sln --no-restore
+
+      - name: Test
+        run: dotnet test ./*.sln --no-build --verbosity normal
