@@ -57,6 +57,7 @@ public class User
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Email cannot be empty.");
 
+            // we can also use this regex if we want to be fancy @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
             if (!Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 throw new ArgumentException("Email is invalid. Format: user@host.domain");
 

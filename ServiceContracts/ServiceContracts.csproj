@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DTOs\DTOs.csproj" />
+      <ProjectReference Include="..\RepositoryContracts\RepositoryContracts.csproj" />
     </ItemGroup>
 
 </Project>
