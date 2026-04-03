@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Entities;
 using RepositoryContracts;
 using ServiceContracts;
+using Services.SecurityUtils;
 
 namespace Services;
 
@@ -23,7 +24,7 @@ public class UserService : IUserService
             throw new ArgumentException("Password does not meet the requirements");
         }
 
-        //user.Password = "Hash"; -- For Mario <3
+        user.Password = PasswordHasher.HashPassword(user.Password);
         
         try
         {
