@@ -33,10 +33,18 @@ message GetUserRequest{
 message GetManyUserResponse{
   repeated UserResponse users = 1;
 }
+message AuthRequest{
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
 service UserServiceProto {
   rpc Create(CreateUserRequest) returns (UserResponse);
   rpc Update(UpdateUserRequest) returns (google.protobuf.Empty);
   rpc Delete(DeleteUserRequest) returns (google.protobuf.Empty);
   rpc Get(GetUserRequest) returns (UserResponse);
   rpc GetAll(google.protobuf.Empty) returns (GetManyUserResponse);
+}
+service AuthServiceProto {
+  rpc Login(AuthRequest) returns (UserResponse);
 }

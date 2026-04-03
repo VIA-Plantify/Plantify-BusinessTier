@@ -12,4 +12,10 @@
       <ProjectReference Include="..\ServiceContracts\ServiceContracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.Testing.Platform">
+        <HintPath>..\..\root\.nuget\packages\microsoft.testing.platform\1.5.3\lib\net9.0\Microsoft.Testing.Platform.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
