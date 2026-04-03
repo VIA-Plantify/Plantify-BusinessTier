@@ -52,6 +52,14 @@ namespace UnitTests
                 .Returns(GrpcMockHelpers.CreateAsyncUnaryCall<UserResponse>(null));
             
             _grpcClientMock
+                .Setup(x => x.GetAsync(
+                    It.Is<GetUserRequest>(r => r.Email == user.Email),
+                    null,
+                    null,
+                    default))
+                .Returns(GrpcMockHelpers.CreateAsyncUnaryCall<UserResponse>(null));
+            
+            _grpcClientMock
                 .Setup(x => x.CreateAsync(
                     It.Is<CreateUserRequest>(r =>
                         r.Name == user.Name &&

@@ -17,15 +17,24 @@ public class UserRepositoryGrpc(UserServiceProto.UserServiceProtoClient client)
         }
         catch (InvalidOperationException)
         {
-            var response = await _client.CreateAsync(new CreateUserRequest
+            try
             {
-                Name = user.Name,
-                Username = user.Username,
-                Password = user.Password,
-                Email = user.Email
-            });
+                await GetByEmailAsync(user.Email);
+            }
+            catch (InvalidOperationException e)
+            {
+                var response = await _client.CreateAsync(new CreateUserRequest
+                {
+                    Name = user.Name,
+                    Username = user.Username,
+                    Password = user.Password,
+                    Email = user.Email
+                });
 
-            return ParseUserResponseToEntity(response);
+                return ParseUserResponseToEntity(response);
+            }
+            
+            throw new InvalidOperationException($"User with email {user.Email} already exists.");
         }
         throw new InvalidOperationException($"User with username {user.Username} already exists.");
     }
