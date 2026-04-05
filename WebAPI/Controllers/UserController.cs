@@ -31,16 +31,10 @@ public class UserController(ILogger<UserController> logger,IUserService userServ
             };
             var created = await userService.CreateAsync(user);
             CheckUserDataIntegrity(created);
-            var createdDto = new UserDto()
-            {
-                Email = created.Email,
-                Name = created.Name,
-                Username = created.Username
-            };
             return CreatedAtAction(
                 nameof(GetUser),
-                new { username = createdDto.Username },
-                createdDto
+                new { username = created.Username },
+                created
             );
         }
         catch (InvalidDataException ex)
