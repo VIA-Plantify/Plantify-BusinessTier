@@ -32,7 +32,7 @@ public class AuthRepositoryGrpc(AuthServiceProto.AuthServiceProtoClient client) 
                 Password = user.Password,
                 Username = user.Username
             });
-        
+            
             return await Task.FromResult(new User
             {
                 Email = response.Email,
