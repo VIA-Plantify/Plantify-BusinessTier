@@ -8,10 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using ServiceContracts;
 
 namespace WebAPI.Controllers;
-
 [ApiController]
 [Route("[controller]")]
-public class UserController(ILogger<UserController> logger, IUserService userService) : ControllerBase
+public class UserController(ILogger<UserController> logger,IUserService userService) : ControllerBase
 {
     /// <summary>
     /// Creates a new user based on the provided data transfer object.
