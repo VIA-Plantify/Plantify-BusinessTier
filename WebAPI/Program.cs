@@ -13,7 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 Directory.CreateDirectory("Logs");
-
+builder.Services.AddControllers();
+builder.Services.AddAuthorization();
+builder.Services.AddCors();
 // Configure Serilog
 builder.Host.UseSerilog((ctx, services, lc) => lc
     .MinimumLevel.Information()
@@ -74,6 +76,7 @@ if (app.Environment.IsDevelopment())
 {
 }
 
+app.MapControllers();
 app.UseRouting();
 app.UseCors(x => x
     .AllowAnyMethod()
