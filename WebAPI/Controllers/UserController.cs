@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 using ServiceContracts;
 
 namespace WebAPI.Controllers;
+
 [ApiController]
 [Route("[controller]")]
-public class UserController(ILogger<UserController> logger,IUserService userService) : ControllerBase
+public class UserController(ILogger<UserController> logger, IUserService userService) : ControllerBase
 {
     /// <summary>
     /// Creates a new user based on the provided data transfer object.
@@ -33,14 +34,13 @@ public class UserController(ILogger<UserController> logger,IUserService userServ
             CheckUserDataIntegrity(created);
             var createdDto = new UserDto()
             {
-                Email = created.Email,
-                Name = created.Name,
-                Username = created.Username
+                Email = user.Email,
+                Name = user.Name,
+                Username = user.Username
             };
             return CreatedAtAction(
                 nameof(GetUser),
-                new { username = createdDto.Username },
-                createdDto
+                new { username = createdDto.Username }, createdDto
             );
         }
         catch (InvalidDataException ex)
@@ -97,6 +97,7 @@ public class UserController(ILogger<UserController> logger,IUserService userServ
             logger.LogInformation("User {username} not found", user?.Username);
             throw new ArgumentNullException("User not found");
         }
+
         if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Email))
         {
             logger.LogInformation("User username:{username} , email:{email} not found", user?.Username, user?.Email);
