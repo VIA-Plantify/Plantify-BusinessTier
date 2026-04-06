@@ -77,7 +77,7 @@ public class AuthController (ILogger<AuthController> logger,IConfiguration confi
             }
 
             var response = await authService.LoginAsync(user);
-            string token = GenerateJwt(user);
+            string token = GenerateJwt(response);
             return Ok(token);
         }
         catch (Exception e)

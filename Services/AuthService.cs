@@ -36,7 +36,7 @@ public class AuthService(IAuthRepository authRepository, ILogger<AuthService> lo
             var response = await authRepository.LoginAsync(user);
             if (PasswordHasher.VerifyPassword(user.Password, response.Password))
             {
-                return await Task.FromResult(user);
+                return await Task.FromResult(response);
             }
         }
         catch (InvalidOperationException ex)
@@ -44,6 +44,6 @@ public class AuthService(IAuthRepository authRepository, ILogger<AuthService> lo
             logger.LogError(ex.Message);
             throw new InvalidOperationException("Invalid credentials", ex);
         }
-        throw new InvalidDataException("Incorect password");
+        throw new InvalidDataException("Incorrect password");
     }
 }
