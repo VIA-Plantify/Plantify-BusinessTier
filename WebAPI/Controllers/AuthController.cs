@@ -122,7 +122,7 @@ public class AuthController (ILogger<AuthController> logger,IConfiguration confi
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, "FleetForward"),
+            new Claim(JwtRegisteredClaimNames.Sub, "Plantify"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat,
                 new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds()
