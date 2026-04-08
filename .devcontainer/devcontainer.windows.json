@@ -5,7 +5,14 @@
   "workspaceFolder": "/workspace",
   "shutdownAction": "none",
   "updateRemoteUserUID": false,
-  "initializeCommand": "powershell -Command \"& { $Network = 'backend'; docker network inspect $Network *> $null; if ($LASTEXITCODE -ne 0) { Write-Host \\\"[devcontainer] Creating Docker network: $Network\\\"; docker network create --driver bridge $Network } else { Write-Host \\\"[devcontainer] Docker network already exists: $Network\\\" } }\"",
+  "initializeCommand": [
+    "powershell.exe",
+    "-NoProfile",
+    "-ExecutionPolicy",
+    "Bypass",
+    "-Command",
+    "$Network = 'backend'; docker network inspect $Network *> $null; if ($LASTEXITCODE -ne 0) { Write-Host \"[devcontainer] Creating Docker network: $Network\"; docker network create --driver bridge $Network } else { Write-Host \"[devcontainer] Docker network already exists: $Network\" }"
+  ],
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
