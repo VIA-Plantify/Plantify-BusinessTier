@@ -1,134 +1,293 @@
-using System.Text.RegularExpressions;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Entities;
+using Moq;
+using NUnit.Framework;
 using RepositoryContracts;
-using ServiceContracts;
-using Services.SecurityUtils;
+using Services;
 
-namespace Services;
-
-public class UserService : IUserService
+namespace UnitTests
 {
-    private readonly IUserRepository _repository;
-
-    public UserService(IUserRepository repository)
+    [TestFixture]
+    public class UserServiceTests
     {
-        _repository = repository;
-    }
+        private Mock<IUserRepository> _repositoryMock;
+        private UserService _service;
 
-    public async Task<User> CreateAsync(User user)
-    {
+        private const string ValidPassword = "ValidPass1!";
 
-        if (!Regex.IsMatch(user.Password,
-                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[A-Za-z\d\S]{8,64}$"))
+        [SetUp]
+        public void Setup()
         {
-            throw new ArgumentException("Password does not meet the requirements");
+            _repositoryMock = new Mock<IUserRepository>();
+            _service = new UserService(_repositoryMock.Object);
         }
 
-        user.Password = PasswordHasher.HashPassword(user.Password);
-        
-        try
-        {
-            var createdUser = await _repository.CreateAsync(user);
+        #region CreateAsync
 
-            return createdUser;
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("User with email"))
+        [Test]
+        public async Task CreateAsync_ValidUser_ReturnsCreatedUser()
         {
-            throw new InvalidOperationException($"User with email {user.Email} already exists");
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("User with username"))
-        {
-            throw new InvalidOperationException($"User with username {user.Username} already exists");
-        }
-    }
+            var user = new User
+            {
+                Name = "John",
+                Username = "john123",
+                Email = "john@test.com",
+                Password = ValidPassword
+            };
 
-    public async Task<User> GetByEmailAsync(string email)
-    {
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            throw new ArgumentException("Email is required and can't be blank");
-        }
+            _repositoryMock
+                .Setup(r => r.CreateAsync(It.IsAny<User>()))
+                .ReturnsAsync(user);
 
-        if (!Regex.IsMatch(email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"))
-        {
-            throw new ArgumentException("Email format is not valid");
+            var result = await _service.CreateAsync(user);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Username, Is.EqualTo(user.Username));
+
+            _repositoryMock.Verify(r => r.CreateAsync(It.Is<User>(u =>
+                u.Password != ValidPassword // ensure hashing happened
+            )), Times.Once);
         }
 
-        var fetchedUser = await _repository.GetByEmailAsync(email);
-
-        if (fetchedUser == null)
+        [Test]
+        public void CreateAsync_InvalidPassword_ThrowsArgumentException()
         {
-            throw new InvalidOperationException($"User with email {email} not found");
+            var user = new User
+            {
+                Name = "John",
+                Username = "john123",
+                Email = "john@test.com",
+                Password = "weak"
+            };
+
+            Assert.ThrowsAsync<ArgumentException>(() => _service.CreateAsync(user));
         }
 
-        return fetchedUser;
-    }
-
-    public async Task<User> GetByUsernameAsync(string username)
-    {
-        if (string.IsNullOrWhiteSpace(username))
+        [Test]
+        public void CreateAsync_EmailAlreadyExists_ThrowsCorrectException()
         {
-            throw new ArgumentException("Username is required and can't be blank");
+            var user = new User
+            {
+                Name = "John",
+                Username = "john123",
+                Email = "john@test.com",
+                Password = ValidPassword
+            };
+
+            _repositoryMock
+                .Setup(r => r.CreateAsync(It.IsAny<User>()))
+                .ThrowsAsync(new InvalidOperationException("User with email already exists"));
+
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateAsync(user));
+
+            Assert.That(ex!.Message, Does.Contain(user.Email));
         }
 
-        var fetchedUser = await _repository.GetByUsernameAsync(username);
-
-        if (fetchedUser == null)
+        [Test]
+        public void CreateAsync_UsernameAlreadyExists_ThrowsCorrectException()
         {
-            throw new KeyNotFoundException($"User with username {username} not found");
+            var user = new User
+            {
+                Name = "John",
+                Username = "john123",
+                Email = "john@test.com",
+                Password = ValidPassword
+            };
+
+            _repositoryMock
+                .Setup(r => r.CreateAsync(It.IsAny<User>()))
+                .ThrowsAsync(new InvalidOperationException("User with username already exists"));
+
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateAsync(user));
+
+            Assert.That(ex!.Message, Does.Contain(user.Username));
         }
 
-        return fetchedUser;
-    }
+        #endregion
 
-    public async Task UpdateAsync(User user)
-    {
-        var fetchedUser = await _repository.GetByUsernameAsync(user.Username);
+        #region GetByEmailAsync
 
-        if (fetchedUser == null)
+        [Test]
+        public async Task GetByEmailAsync_UserExists_ReturnsUser()
         {
-            throw new KeyNotFoundException($"User with username {user.Username} not found");
+            var email = "john@test.com";
+            var user = new User { Email = email };
+
+            _repositoryMock
+                .Setup(r => r.GetByEmailAsync(email))
+                .ReturnsAsync(user);
+
+            var result = await _service.GetByEmailAsync(email);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Email, Is.EqualTo(email));
         }
 
-        fetchedUser.Name = user.Name;
-        fetchedUser.Email = user.Email;
-
-        try
+        [Test]
+        public void GetByEmailAsync_InvalidEmailFormat_Throws()
         {
-            await _repository.UpdateAsync(fetchedUser);
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException(e.Message);
-        }
-    }
-
-    public async Task DeleteAsync(string username)
-    {
-        if (string.IsNullOrWhiteSpace(username))
-        {
-            throw new ArgumentException("Username is required and can't be blank");
+            Assert.ThrowsAsync<ArgumentException>(() =>
+                _service.GetByEmailAsync("invalid-email"));
         }
 
-        var fetchedUser = await _repository.GetByUsernameAsync(username);
-
-        if (fetchedUser == null)
+        [Test]
+        public void GetByEmailAsync_UserNotFound_Throws()
         {
-            throw new KeyNotFoundException($"User with username {username} not found");
+            var email = "john@test.com";
+
+            _repositoryMock
+                .Setup(r => r.GetByEmailAsync(email))
+                .ReturnsAsync((User)null);
+
+            Assert.ThrowsAsync<InvalidOperationException>(() =>
+                _service.GetByEmailAsync(email));
         }
 
-        await _repository.DeleteAsync(username);
-    }
+        #endregion
 
-    public async Task<IEnumerable<User>> GetManyAsync()
-    {
-        var fetchedUsers = await _repository.GetManyAsync();
+        #region GetByUsernameAsync
 
-        if (fetchedUsers == null)
+        [Test]
+        public async Task GetByUsernameAsync_UserExists_ReturnsUser()
         {
-            throw new InvalidOperationException("Failed to fetch any user");
+            var username = "john123";
+            var user = new User { Username = username };
+
+            _repositoryMock
+                .Setup(r => r.GetByUsernameAsync(username))
+                .ReturnsAsync(user);
+
+            var result = await _service.GetByUsernameAsync(username);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Username, Is.EqualTo(username));
         }
 
-        return fetchedUsers;
+        [Test]
+        public void GetByUsernameAsync_NotFound_Throws()
+        {
+            var username = "john123";
+
+            _repositoryMock
+                .Setup(r => r.GetByUsernameAsync(username))
+                .ReturnsAsync((User)null);
+
+            Assert.ThrowsAsync<KeyNotFoundException>(() =>
+                _service.GetByUsernameAsync(username));
+        }
+
+        #endregion
+
+        #region UpdateAsync
+
+        [Test]
+        public async Task UpdateAsync_ValidUser_UpdatesSuccessfully()
+        {
+            var existingUser = new User
+            {
+                Name = "Old",
+                Username = "john123",
+                Email = "old@test.com"
+            };
+
+            var updatedUser = new User
+            {
+                Name = "New",
+                Username = "john123",
+                Email = "new@test.com"
+            };
+
+            _repositoryMock
+                .Setup(r => r.GetByUsernameAsync(updatedUser.Username))
+                .ReturnsAsync(existingUser);
+
+            await _service.UpdateAsync(updatedUser);
+
+            Assert.That(existingUser.Name, Is.EqualTo("New"));
+            Assert.That(existingUser.Email, Is.EqualTo("new@test.com"));
+
+            _repositoryMock.Verify(r => r.UpdateAsync(existingUser), Times.Once);
+        }
+
+        [Test]
+        public void UpdateAsync_UserNotFound_Throws()
+        {
+            var user = new User { Username = "john123" };
+
+            _repositoryMock
+                .Setup(r => r.GetByUsernameAsync(user.Username))
+                .ReturnsAsync((User)null);
+
+            Assert.ThrowsAsync<KeyNotFoundException>(() =>
+                _service.UpdateAsync(user));
+        }
+
+        #endregion
+
+        #region DeleteAsync
+
+        [Test]
+        public async Task DeleteAsync_ValidUsername_CallsRepository()
+        {
+            var username = "john123";
+
+            _repositoryMock
+                .Setup(r => r.GetByUsernameAsync(username))
+                .ReturnsAsync(new User { Username = username });
+
+            await _service.DeleteAsync(username);
+
+            _repositoryMock.Verify(r => r.DeleteAsync(username), Times.Once);
+        }
+
+        [Test]
+        public void DeleteAsync_UserNotFound_Throws()
+        {
+            var username = "john123";
+
+            _repositoryMock
+                .Setup(r => r.GetByUsernameAsync(username))
+                .ReturnsAsync((User)null);
+
+            Assert.ThrowsAsync<KeyNotFoundException>(() =>
+                _service.DeleteAsync(username));
+        }
+
+        #endregion
+
+        #region GetManyAsync
+
+        [Test]
+        public async Task GetManyAsync_ReturnsUsers()
+        {
+            var users = new List<User>
+            {
+                new User { Username = "user1" },
+                new User { Username = "user2" }
+            };
+
+            _repositoryMock
+                .Setup(r => r.GetManyAsync())
+                .ReturnsAsync(users);
+
+            var result = await _service.GetManyAsync();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        public void GetManyAsync_Null_Throws()
+        {
+            _repositoryMock
+                .Setup(r => r.GetManyAsync())
+                .ReturnsAsync((IEnumerable<User>)null);
+
+            Assert.ThrowsAsync<InvalidOperationException>(() =>
+                _service.GetManyAsync());
+        }
+
+        #endregion
     }
 }
