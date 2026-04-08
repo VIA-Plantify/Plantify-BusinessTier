@@ -1,0 +1,33 @@
+# Set the WebAPI host address
+@WebAPI_HostAddress = http://localhost:8081
+
+### Create User - Jane Doe
+POST {{WebAPI_HostAddress}}/User
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Jane Doe",
+  "username": "janedoe",
+  "password": "pass123",
+  "email": "jane@example.com"
+}
+
+### Get User - Jane Doe
+GET {{WebAPI_HostAddress}}/User/u/janedoe
+Accept: application/json
+
+### Update User - Jane Doe
+PUT {{WebAPI_HostAddress}}/User/u/janedoe
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Janet Doe",
+  "password": "newpass456",
+  "email": "janet@example.com"
+}
+
+### Delete User - Jane Doe
+DELETE {{WebAPI_HostAddress}}/User/u/janedoe
+Accept: application/json
