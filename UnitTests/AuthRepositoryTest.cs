@@ -99,6 +99,7 @@ namespace UnitTests
                     r.Email == user.Email),
                 null, null, default), Times.Once);
         }
+        
 
         [Test]
         public void LoginAsync_InvalidOperation_ThrowsInvalidOperationException()
