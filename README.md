@@ -1,2 +1,2 @@
 # Plantify-BusinessTier
-This is Plan tifies Business Tier logic
+This is Plantify Business Tier logic
