@@ -5,6 +5,16 @@
   "workspaceFolder": "/workspace",
   "shutdownAction": "none",
   "updateRemoteUserUID": false,
+  "initializeCommand": "sh -c '\
+    set -e; \
+    NETWORK=backend; \
+    if ! docker network inspect \"$NETWORK\" >/dev/null 2>&1; then \
+      echo \"[devcontainer] Creating Docker network: $NETWORK\"; \
+      docker network create --driver bridge \"$NETWORK\"; \
+    else \
+      echo \"[devcontainer] Docker network already exists: $NETWORK\"; \
+    fi\
+  '",
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
   ],
