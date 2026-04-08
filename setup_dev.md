@@ -14,7 +14,7 @@ WebAPI will not work without
 - [Refresh Grpc Container with Button](#refreshing-webapi-container-button)
 - [Troubleshooting](#troubleshooting)
     - [Containers not being displayed in docker desktop](#not-seeing-containers-in-docker-desktop)
-    - [Database container dependency](#database-container-dependency)
+    - [Grpc Container dependency](#grpc-container-dependency)
     - [Stale image or unupdated project](#stale-image)
     - [Older images and volumes](#older-images-and-volumes)
         - [Volumes](#volumes)
