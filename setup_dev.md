@@ -1,6 +1,28 @@
-# This tutorial is for Jetbrains Rider
+# This tutorial is for JetBrains Rider
+
+## IMPORTANT!!
+
+It is highly advised to create datadev first from https://github.com/VIA-Plantify/Plantify-DataTier.git
+
+WebAPI will not work without
 
 ## Update Rider to the latest version
+
+## Table of Contents
+- [Creating a dev container](#creating-a-dev-container)
+- [Refreshing Grpc Container Manual](#refreshing-webapi-container-manual)
+- [Refresh Grpc Container with Button](#refreshing-webapi-container-button)
+- [Troubleshooting](#troubleshooting)
+    - [Containers not being displayed in docker desktop](#not-seeing-containers-in-docker-desktop)
+    - [Database container dependency](#database-container-dependency)
+    - [Stale image or unupdated project](#stale-image)
+    - [Older images and volumes](#older-images-and-volumes)
+        - [Volumes](#volumes)
+        - [Images](#images)
+        - [Network](#network)
+    - [Rider is not showing files upon container start](#rider-not-displaying-files)
+    - [Container creation stuck loading](#rider-hangs-when-creating-containers)
+    - [Refresh script fail](#script-failing-inside-container)
 
 ## Creating a dev container
 
@@ -33,7 +55,7 @@ select **development or the branch currently under development** and continue, t
 ### IMPORTANT !!!
 <h3>The  gRPC container from https://github.com/VIA-Plantify/Plantify-DataTier.git must be running before the webAPI</h3>
 
-## Refreshing WebApi Container
+## Refreshing WebApi Container Manual
 inside the devcontainer run: ``scripts/refresh-webapi.sh``
 
 outside container it gets a bit more complicated,
@@ -43,7 +65,7 @@ run: ``chmod +x scripts/refresh-webapi.sh`` to make it executable
 
 afterwards run: ``./scripts/refresh-webapi.sh``
 
-## Making an IDE button for refresh script in Rider
+## Refreshing WebApi Container Button
 
 Go to the top of the options where usually the program is being ran
 
@@ -68,3 +90,99 @@ Add the script and the correct path from scripts and apply
 Now you should have a button that runs the script
 
 <img width="317" height="46" alt="image" src="https://github.com/user-attachments/assets/9cfed1a3-7c74-4098-af56-41f1426b56a5" />
+
+## Troubleshooting
+
+### Not seeing containers in docker desktop
+
+Make sure to uncheck the show only running containers
+options to see everything.
+
+### Grpc container dependency
+
+If the WebApi container does not work or start make sure the gRPC and postgres containers are running
+
+### Stale image
+
+Make sure to pull in all the changes in development before continuing, some of the code and fixes might have been already made
+
+Run the refresh script made in the previous step to refresh the production container.
+
+### Older images and volumes
+
+If the container configuration has been changed or problems persist, delete the images of the container and the jetbrains volumes (not shared volume)
+
+To see the volumes and images either use ur GUI tool (For windows try docker desktop) (For linux I recommend lazydocker to see images and volumes along side ducker to see running containers)
+
+If a GUI tool does not exist or cannot be accessed run the follwoing commands
+
+#### Volumes
+Run
+```shell 
+docker volume ls
+```
+
+Look for:
+```
+local     jb_devcontainer_sources_ ...
+```
+
+Run
+```shell
+docker rm (volume name)
+```
+
+#### Images
+Run
+```shell
+docker image ls
+```
+
+Look for:
+```
+plantify-businesstier-businessdev:latest     
+plantify-businesstier_plantify-businesstier-businessdev:latest
+plantify-datatier-datadev:latest
+plantify-datatier-grpcserver:latest
+plantify-datatier_plantify-datatier-datadev:latest
+plantify-datatier_plantify-datatier-grpcserver:latest
+```
+Run
+```shell
+docker rm (image name)
+```
+
+#### Network
+
+```shell
+docker network list
+```
+Look for
+```
+backend
+```
+
+If the problem persists run:
+
+```shell
+docker network rm backend
+```
+
+Close and rebuild the containers or use to create the network
+```shell
+docker network create --driver bridge backend
+```
+
+### Rider not displaying files
+
+If you do not see the files after opening
+a container close the container and restart rider, they will show up after.
+
+### Rider hangs when creating containers
+
+If rider hangs try going into a project then to remote development and try that.
+
+### Script failing inside container
+
+Rebuild the container after pulling in the project or go back and [delete volumes images](#older-images-and-volumes) and do a fresh install.
+
