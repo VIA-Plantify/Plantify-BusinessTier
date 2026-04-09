@@ -1,9 +1,9 @@
-# This workflow will build a .NET project, this workflow will build the project and check for compilation errors
+# This workflow will build a .NET project checks if the code compiles and dependencies are working
 
 name: .NET Build
 
 on:
-  pull_request:
+  push:
 
 jobs:
   build:
