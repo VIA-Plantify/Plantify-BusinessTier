@@ -5,7 +5,7 @@ services:
     image: webapi
     build:
       context: .
-      dockerfile: WebAPI/Dockerfile
+      dockerfile: WebApi/WebAPI/Dockerfile
     container_name: webapi
     environment:
       ASPNETCORE_ENVIRONMENT: Development
