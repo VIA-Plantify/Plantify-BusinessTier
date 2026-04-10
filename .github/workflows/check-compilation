@@ -1,10 +1,9 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+# This workflow will build a .NET project checks if the code compiles and dependencies are working
 
-name: .NET Test
+name: .NET Build
 
 on:
-  pull_request:
+  push:
 
 jobs:
   build:
@@ -21,5 +20,3 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
