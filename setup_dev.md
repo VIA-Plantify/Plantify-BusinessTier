@@ -2,6 +2,21 @@
 
 ## IMPORTANT!!
 
+If cloning the repository without opening the dev container beforehand the networking will not be created, run the follwoing scripts:
+
+### First time setup without devcontainer
+
+#### Linux / macOS
+
+```bash
+./scripts/setup-dev.sh
+```
+
+#### Windows
+```ps1
+./scripts/setup-dev.ps1
+```
+
 It is highly advised to create datadev first from https://github.com/VIA-Plantify/Plantify-DataTier.git
 
 WebAPI will not work without
@@ -52,11 +67,7 @@ select **development or the branch currently under development** and continue, t
 
 <img width="988" height="196" alt="image" src="https://github.com/user-attachments/assets/11806b2e-2bd2-4afd-a2aa-92a5374bbffb" />
 
-<h2>If running on linux or wsl use .devcontainer/devcontainer.linux.json</h2>
-
-<h2>If running on Windows use .devcontainer/devcontainer.windows.json</h2>
-
-<img width="995" height="198" alt="image" src="https://github.com/user-attachments/assets/bdddac4b-4cd8-4880-8592-8f9b1c63dca6" />
+Press Okay and the container will be created
 
 ### IMPORTANT !!!
 <h3>The  gRPC container from https://github.com/VIA-Plantify/Plantify-DataTier.git must be running before the webAPI</h3>
