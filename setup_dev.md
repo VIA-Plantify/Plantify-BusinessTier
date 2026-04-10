@@ -2,19 +2,59 @@
 
 ## IMPORTANT!!
 
-If cloning the repository without opening the dev container beforehand the networking will not be created, run the follwoing scripts:
+### First time setup
 
-### First time setup without devcontainer
+This step creates the shared Docker network used by the dev environment.
 
 #### Linux / macOS
 
 ```bash
 ./scripts/setup-dev.sh
 ```
+or in the console:
+
+```bash
+NETWORK="backend"
+
+echo "Checking Docker..."
+docker info >/dev/null 2>&1
+
+if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
+  echo "Creating Docker network: $NETWORK"
+  docker network create --driver bridge "$NETWORK"
+else
+  echo "Docker network already exists: $NETWORK"
+fi
+
+echo "Base Docker setup complete."
+```
 
 #### Windows
 ```ps1
 ./scripts/setup-dev.ps1
+```
+
+Or in Powershell:
+
+```ps1
+$NETWORK = "backend"
+
+docker info *> $null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Docker is not running or not installed."
+    exit 1
+}
+
+docker network inspect $NETWORK *> $null
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Creating Docker network: $NETWORK"
+    docker network create $NETWORK
+} else {
+    Write-Host "Docker network already exists: $NETWORK"
+}
+
+Write-Host "Base Docker setup complete."
 ```
 
 It is highly advised to create datadev first from https://github.com/VIA-Plantify/Plantify-DataTier.git
