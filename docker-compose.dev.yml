@@ -2,6 +2,7 @@
 
 services:
   businessdev:
+    image: business:dev
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
