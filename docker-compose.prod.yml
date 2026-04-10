@@ -1,0 +1,22 @@
+﻿name: plantify_production
+
+services:
+  webapi:
+    image: webapi
+    build:
+      context: .
+      dockerfile: WebAPI/Dockerfile
+    container_name: webapi
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:8081"
+      Grpc__ServerUrl: http://grpcserver:10081
+    ports:
+      - "8081:8081"
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
+    name: backend

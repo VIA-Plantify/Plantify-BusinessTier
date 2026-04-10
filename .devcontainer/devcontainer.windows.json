@@ -1,6 +1,6 @@
 {
   "name": "C# Business Dev",
-  "dockerComposeFile": "../docker-compose-business.yml",
+  "dockerComposeFile": "../docker-compose.dev.yml",
   "service": "businessdev",
   "workspaceFolder": "/workspace",
   "shutdownAction": "none",
