@@ -17,6 +17,7 @@ WebAPI will not work without
     - [Grpc Container dependency](#grpc-container-dependency)
     - [Stale image or unupdated project](#stale-image)
     - [Older images and volumes](#older-images-and-volumes)
+        - [Containers](#containers)
         - [Volumes](#volumes)
         - [Images](#images)
         - [Network](#network)
@@ -121,10 +122,31 @@ To see the volumes and images either use ur GUI tool (For windows try docker des
 
 If a GUI tool does not exist or cannot be accessed run the follwoing commands
 
+#### Containers
+Run
+```shell 
+docker container ls
+```
+
+Look for 
+```
+local   plantify...
+local   webapi...
+local   business...
+```
+```shell
+docker stop {contianer name}
+docker rm {container name}
+```
+
 #### Volumes
 Run
 ```shell 
 docker volume ls
+```
+
+```shell
+docker rm (volume name)
 ```
 
 Look for:
