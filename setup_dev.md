@@ -6,7 +6,7 @@
 
 This step creates the shared Docker network used by the dev environment.
 
-#### Linux / macOS
+#### Linux / macOS / Inside the dev container
 
 ```bash
 ./scripts/setup-dev.sh
@@ -174,6 +174,10 @@ To see the volumes and images either use ur GUI tool (For windows try docker des
 If a GUI tool does not exist or cannot be accessed run the follwoing commands
 
 #### Containers
+
+<img width="2197" height="219" alt="image" src="https://github.com/user-attachments/assets/c6e28c2b-9981-4941-9a38-a70b7aba6784" />
+
+
 Run
 ```shell 
 docker container ls
@@ -191,6 +195,10 @@ docker rm {container name}
 ```
 
 #### Volumes
+
+<img width="2200" height="265" alt="image" src="https://github.com/user-attachments/assets/a1cdebca-360f-4b23-b025-fad839d6dacf" />
+
+
 Run
 ```shell 
 docker volume ls
@@ -211,6 +219,10 @@ docker rm (volume name)
 ```
 
 #### Images
+
+<img width="2223" height="132" alt="image" src="https://github.com/user-attachments/assets/7bacfa4c-6f4e-43db-80ef-cd738de1bdaa" />
+
+
 Run
 ```shell
 docker image ls
