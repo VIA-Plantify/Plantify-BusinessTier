@@ -2,6 +2,13 @@
 
 ## IMPORTANT!!
 
+## If having problems and want to nuke all containers we have made use:
+```shell
+docker system prune -a
+docker volume rm $(docker volume ls -q | grep jb_devcontainer_sources_)
+```
+
+
 ### First time setup without devcontainer
 
 This step creates the shared Docker network used by the dev environment.
@@ -9,7 +16,7 @@ This step creates the shared Docker network used by the dev environment.
 #### Linux / macOS / Inside the dev container
 
 ```bash
-./scripts/setup-dev.sh
+./.scripts/setup-dev.sh
 ```
 or in the console:
 
@@ -31,7 +38,7 @@ echo "Base Docker setup complete."
 
 #### Windows
 ```ps1
-./scripts/setup-dev.ps1
+./.scripts/setup-dev.ps1
 ```
 
 Or in Powershell:
@@ -118,9 +125,9 @@ inside the devcontainer run: ``scripts/refresh-webapi.sh``
 outside container it gets a bit more complicated,
 I know only for linux but it should work in WSL:
 
-run: ``chmod +x scripts/refresh-webapi.sh`` to make it executable
+run: ``chmod +x .scripts/refresh-webapi.sh`` to make it executable
 
-afterwards run: ``./scripts/refresh-webapi.sh``
+afterwards run: ``./.scripts/refresh-webapi.sh``
 
 ## Refreshing WebApi Container Button
 
