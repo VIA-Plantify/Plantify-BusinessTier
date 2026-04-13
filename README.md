@@ -11,6 +11,7 @@
 <h1>The postgres container must be running</h1>
 
 <h3>From native machine</h3>
+
 ```
 jdbc:postgresql://localhost:55432/plantify?password=plantifydev&user=dev 
 ```
