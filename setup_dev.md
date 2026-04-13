@@ -2,7 +2,7 @@
 
 ## IMPORTANT!!
 
-### First time setup
+### First time setup without devcontainer
 
 This step creates the shared Docker network used by the dev environment.
 
