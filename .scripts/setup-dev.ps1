@@ -1,4 +1,4 @@
-$NETWORK = "backend"
+$NETWORK = "plantify-network"
 
 docker info *> $null
 if ($LASTEXITCODE -ne 0) {

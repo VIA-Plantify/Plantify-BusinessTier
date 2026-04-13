@@ -14,7 +14,7 @@ This step creates the shared Docker network used by the dev environment.
 or in the console:
 
 ```bash
-NETWORK="backend"
+NETWORK="plantify-network"
 
 echo "Checking Docker..."
 docker info >/dev/null 2>&1
@@ -37,7 +37,7 @@ echo "Base Docker setup complete."
 Or in Powershell:
 
 ```ps1
-$NETWORK = "backend"
+$NETWORK = "plantify-network"
 
 docker info *> $null
 if ($LASTEXITCODE -ne 0) {

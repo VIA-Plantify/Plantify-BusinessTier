@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-NETWORK="backend"
+NETWORK="plantify-network"
 
 echo "Checking Docker..."
 docker info >/dev/null 2>&1
