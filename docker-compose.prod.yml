@@ -14,9 +14,9 @@ services:
     ports:
       - "8081:8081"
     networks:
-      - backend
+      - plantify-network
 
 networks:
-  backend:
+  plantify-network:
     external: true
-    name: backend
+    name: plantify-network
