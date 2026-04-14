@@ -1,0 +1,19 @@
+{
+  "name": "C# Business Dev",
+  "dockerComposeFile": "../docker-compose.dev.yml",
+  "service": "businessdev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "none",
+  "updateRemoteUserUID": false,
+  "postCreateCommand": "chmod +x /workspace/.scripts/*.sh && bash /workspace/.scripts/setup-dev.sh",
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit"
+      ]
+    }
+  }
+}

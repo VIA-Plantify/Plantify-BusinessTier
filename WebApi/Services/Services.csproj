@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\PlantifyShared\Entities\Entities.csproj" />
+      <ProjectReference Include="..\..\PlantifyShared\RepositoryContracts\RepositoryContracts.csproj" />
+      <ProjectReference Include="..\..\PlantifyShared\ServiceContracts\ServiceContracts.csproj" />
+      <ProjectReference Include="..\..\Shared\ServiceContracts\ServiceContracts.csproj" />
       <ProjectReference Include="..\DTOs\DTOs.csproj" />
       <ProjectReference Include="..\RepositoryContracts\RepositoryContracts.csproj" />
       <ProjectReference Include="..\ServiceContracts\ServiceContracts.csproj" />
