@@ -1,0 +1,17 @@
+﻿name: dev
+
+services:
+  businessdev:
+    image: business:dev
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: businessdev
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: sleep infinity
+    user: root
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Grpc__ServerUrl: http://host.docker.internal:10081

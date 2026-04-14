@@ -2,6 +2,68 @@
 
 ## IMPORTANT!!
 
+## If having problems and want to nuke all containers we have made use:
+```shell
+docker system prune -a
+docker volume rm $(docker volume ls -q | grep jb_devcontainer_sources_)
+```
+
+
+### First time setup without devcontainer
+
+This step creates the shared Docker network used by the dev environment.
+
+#### Linux / macOS / Inside the dev container
+
+```bash
+./.scripts/setup-dev.sh
+```
+or in the console:
+
+```bash
+NETWORK="plantify-network"
+
+echo "Checking Docker..."
+docker info >/dev/null 2>&1
+
+if ! docker network inspect "$NETWORK" >/dev/null 2>&1; then
+  echo "Creating Docker network: $NETWORK"
+  docker network create --driver bridge "$NETWORK"
+else
+  echo "Docker network already exists: $NETWORK"
+fi
+
+echo "Base Docker setup complete."
+```
+
+#### Windows
+```ps1
+./.scripts/setup-dev.ps1
+```
+
+Or in Powershell:
+
+```ps1
+$NETWORK = "plantify-network"
+
+docker info *> $null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Docker is not running or not installed."
+    exit 1
+}
+
+docker network inspect $NETWORK *> $null
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Creating Docker network: $NETWORK"
+    docker network create $NETWORK
+} else {
+    Write-Host "Docker network already exists: $NETWORK"
+}
+
+Write-Host "Base Docker setup complete."
+```
+
 It is highly advised to create datadev first from https://github.com/VIA-Plantify/Plantify-DataTier.git
 
 WebAPI will not work without
@@ -17,6 +79,7 @@ WebAPI will not work without
     - [Grpc Container dependency](#grpc-container-dependency)
     - [Stale image or unupdated project](#stale-image)
     - [Older images and volumes](#older-images-and-volumes)
+        - [Containers](#containers)
         - [Volumes](#volumes)
         - [Images](#images)
         - [Network](#network)
@@ -51,11 +114,7 @@ select **development or the branch currently under development** and continue, t
 
 <img width="988" height="196" alt="image" src="https://github.com/user-attachments/assets/11806b2e-2bd2-4afd-a2aa-92a5374bbffb" />
 
-<h2>If running on linux or wsl use .devcontainer/devcontainer.linux.json</h2>
-
-<h2>If running on Windows use .devcontainer/devcontainer.windows.json</h2>
-
-<img width="995" height="198" alt="image" src="https://github.com/user-attachments/assets/bdddac4b-4cd8-4880-8592-8f9b1c63dca6" />
+Press Okay and the container will be created
 
 ### IMPORTANT !!!
 <h3>The  gRPC container from https://github.com/VIA-Plantify/Plantify-DataTier.git must be running before the webAPI</h3>
@@ -66,9 +125,9 @@ inside the devcontainer run: ``scripts/refresh-webapi.sh``
 outside container it gets a bit more complicated,
 I know only for linux but it should work in WSL:
 
-run: ``chmod +x scripts/refresh-webapi.sh`` to make it executable
+run: ``chmod +x .scripts/refresh-webapi.sh`` to make it executable
 
-afterwards run: ``./scripts/refresh-webapi.sh``
+afterwards run: ``./.scripts/refresh-webapi.sh``
 
 ## Refreshing WebApi Container Button
 
@@ -121,10 +180,39 @@ To see the volumes and images either use ur GUI tool (For windows try docker des
 
 If a GUI tool does not exist or cannot be accessed run the follwoing commands
 
+#### Containers
+
+<img width="2197" height="219" alt="image" src="https://github.com/user-attachments/assets/c6e28c2b-9981-4941-9a38-a70b7aba6784" />
+
+
+Run
+```shell 
+docker container ls
+```
+
+Look for 
+```
+local   plantify...
+local   webapi...
+local   business...
+```
+```shell
+docker stop {contianer name}
+docker rm {container name}
+```
+
 #### Volumes
+
+<img width="2200" height="265" alt="image" src="https://github.com/user-attachments/assets/a1cdebca-360f-4b23-b025-fad839d6dacf" />
+
+
 Run
 ```shell 
 docker volume ls
+```
+
+```shell
+docker rm (volume name)
 ```
 
 Look for:
@@ -138,6 +226,10 @@ docker rm (volume name)
 ```
 
 #### Images
+
+<img width="2223" height="132" alt="image" src="https://github.com/user-attachments/assets/7bacfa4c-6f4e-43db-80ef-cd738de1bdaa" />
+
+
 Run
 ```shell
 docker image ls

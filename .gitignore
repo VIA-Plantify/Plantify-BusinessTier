@@ -53,3 +53,7 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 /.idea/
+
+# Env
+.env.local
+.env.dev
