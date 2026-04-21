@@ -26,4 +26,4 @@ jobs:
           context: .
           file: ./WebApi/WebAPI/Dockerfile
           push: true
-          tags: ghcr.io/VIA-Plantify/webapi:latest
+          tags: ghcr.io/via-plantify/plantify-businesstier/webapi:latest
