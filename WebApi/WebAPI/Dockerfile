@@ -5,6 +5,11 @@ EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
+
+RUN apt-get update && apt-get install -y git
+
+RUN git clone -b main https://github.com/VIA-Plantify/Plantify-BusinessTier.git /src/WebApi/WebAPI
+
 WORKDIR "/src/WebApi/WebAPI"
 COPY ["WebApi/WebAPI/WebAPI.csproj", "WebApi/WebAPI/"]
 RUN dotnet restore "WebApi/WebAPI/WebAPI.csproj"
