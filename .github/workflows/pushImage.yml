@@ -1,8 +1,7 @@
 name: Build and push image
 
 on:
-  push:
-    branches: [main]
+  push: 
   workflow_dispatch: 
 
 permissions:
