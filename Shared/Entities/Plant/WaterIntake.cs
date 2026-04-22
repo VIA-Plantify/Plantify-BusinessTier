@@ -2,11 +2,10 @@ namespace Entities.Plant;
 
 public class WaterIntake : IWaterIntake
 {
-    private double? pumpTime;
+    private DateTime? pumpTime;
     private double? volume;
-    private IList<double?> pastWaterIntakeReadings = new List<double?>();
-
-    public double? PumpTime
+    
+    public DateTime? PumpTime
     {
         get => pumpTime;
         set
@@ -14,8 +13,8 @@ public class WaterIntake : IWaterIntake
             if (value is null)
                 throw new ArgumentNullException(nameof(PumpTime), "Pump time is null");
 
-            if (value < 0)
-                throw new ArgumentException("Pump time cannot be negative");
+            if (value > DateTime.Now)
+                throw new ArgumentException("Pump time cannot be in the future");
 
             pumpTime = value;
         }
@@ -35,16 +34,5 @@ public class WaterIntake : IWaterIntake
             volume = value;
         }
     }
-
-    public IList<double?> PastWaterIntakeReadings
-    {
-        get => pastWaterIntakeReadings;
-        set
-        {
-            if (value is null)
-                throw new ArgumentNullException(nameof(PastWaterIntakeReadings), "Past readings list is null");
-
-            pastWaterIntakeReadings = value;
-        }
-    }
+    public IList<double?> PastWaterIntakeReadings { get; set; } = new List<double?>();
 }

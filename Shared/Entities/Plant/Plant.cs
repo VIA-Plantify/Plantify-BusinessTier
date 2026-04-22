@@ -33,6 +33,4 @@ public class Plant
          get => LightIntensity .OptimalLightIntensity; 
         set => LightIntensity .OptimalLightIntensity = value; 
      } 
-    public int? WaterLevelPercentage => WaterLevel.WaterLevelPercentage;
-    public double? LastWaterVolume => WaterIntake.Volume;
 }
