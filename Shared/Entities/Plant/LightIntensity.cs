@@ -38,8 +38,5 @@ public class LightIntensity : ILightIntensity
     public IList<double?> PastLightIntensityReadings { get; set; } = new List<double?>();
 
     public IList<TimeSpan?> PastLightPeriodReadings { get; set; } = new List<TimeSpan?>();
-
-    public double OptimalLightIntensity { get; set; }
     
-    public TimeSpan OptimalLightPeriod { get; set; }
 }

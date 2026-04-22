@@ -6,6 +6,4 @@ public interface ILightIntensity
     TimeSpan? CurrentLightPeriod { get; set; }
     IList<double?> PastLightIntensityReadings { get; set; }
     IList<TimeSpan?> PastLightPeriodReadings { get; set; }
-    double OptimalLightIntensity { get; set; }
-    TimeSpan OptimalLightPeriod { get; set; }
 }

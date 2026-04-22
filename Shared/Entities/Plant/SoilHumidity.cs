@@ -24,6 +24,4 @@ public class SoilHumidity : IHumidity
     }
 
     public IList<double?> PastSoilHumidityReadings { get; set; } = new List<double?>();
-    
-    public double OptimalSoilHumidity { get; set; }
 }
