@@ -57,3 +57,4 @@ nunit-*.xml
 # Env
 .env.local
 .env.dev
+.env
