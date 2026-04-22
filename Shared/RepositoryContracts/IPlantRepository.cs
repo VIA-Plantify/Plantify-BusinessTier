@@ -4,9 +4,10 @@ namespace RepositoryContracts;
 
 public interface IPlantRepository
 {
-    Task<Plant> CreateAsync(Plant plant);
-    Task<Plant> GetPlantByUsernameAsync(string username);
-    Task DeleteAsync(int id);
-    Task UpdateAsync(Plant plant);
+    Task<Plant> CreateAsync(string username,Plant plant);
+    Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username);
+    Task DeleteAsync(string username,int plantId);
+    Task UpdateAsync(string username,Plant plant);
+    Task<IEnumerable<Plant>> GetManyAsync(string username);
     Task<IEnumerable<Plant>> GetManyAsync();
 }
