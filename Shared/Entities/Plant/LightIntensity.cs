@@ -4,8 +4,6 @@ public class LightIntensity : ILightIntensity
 {
     private double? currentIntensity;
     private TimeSpan? currentPeriod;
-    private IList<double?> pastIntensityReadings = new List<double?>();
-    private IList<TimeSpan?> pastPeriodReadings = new List<TimeSpan?>();
 
     public double? CurrentLightIntensity
     {
@@ -37,33 +35,11 @@ public class LightIntensity : ILightIntensity
         }
     }
 
-    public IList<double?> PastLightIntensityReadings
-    {
-        get => pastIntensityReadings;
-        set
-        {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(PastLightIntensityReadings), "Past light readings is null");
-            }
-            pastIntensityReadings = value;
-        }
-    }
+    public IList<double?> PastLightIntensityReadings { get; set; } = new List<double?>();
 
-    public IList<TimeSpan?> PastLightPeriodReadings
-
-    {
-        get => pastPeriodReadings;
-        set
-        {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(PastLightPeriodReadings), "Past period readings is null");
-            }
-            pastPeriodReadings = value;
-        }
-    }
+    public IList<TimeSpan?> PastLightPeriodReadings { get; set; } = new List<TimeSpan?>();
 
     public double OptimalLightIntensity { get; set; }
+    
     public TimeSpan OptimalLightPeriod { get; set; }
 }
