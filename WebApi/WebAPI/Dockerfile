@@ -8,7 +8,7 @@ ARG BUILD_CONFIGURATION=Release
 
 RUN apt-get update && apt-get install -y git
 
-RUN git clone -b azure-fix https://github.com/VIA-Plantify/Plantify-BusinessTier.git /src/WebApi/WebAPI
+RUN git clone -b main https://github.com/VIA-Plantify/Plantify-BusinessTier.git /src/WebApi/WebAPI
 
 WORKDIR "/src/WebApi/WebAPI"
 COPY ["WebApi/WebAPI/WebAPI.csproj", "WebApi/WebAPI/"]
