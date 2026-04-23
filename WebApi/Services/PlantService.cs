@@ -50,22 +50,29 @@ public class PlantService : IPlantService
         await VerifyUserExistsAsync(username);
 
         var existingPlant = await _repository.GetPlantAsync(username,plantId);
-        {
-            throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
-        }
+       
         if (existingPlant == null)
         {
             throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
         }
 
         return existingPlant;    
+    }
+
+    public async Task UpdateAsync(string username, Plant plant)
+    {
         await VerifyUserExistsAsync(username);
 
-        var existingPlants = await _repository.GetPlantsByUsernameAsync(username);
-        var plantToUpdate = existingPlants.FirstOrDefault(p => p.Id == plant.Id);
-
+        var plantToUpdate = await _repository.GetPlantAsync(username,plantId);
+        
         if (plantToUpdate == null)
-        var plantToUpdate = await GetPlantAsync(username, plant.Id);
+        {
+            throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
+        }
+
+        plantToUpdate.Name = plant.Name;
+        plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
+        plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;
         plantToUpdate.OptimalLightSensitivity = plant.OptimalLightSensitivity;
 
@@ -84,8 +91,9 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlants = await _repository.GetPlantsByUsernameAsync(username);
-        if (!existingPlants.Any(p => p.Id == plantId))
+         var existingPlant = await _repository.GetPlantAsync(username,plantId);
+        
+        if (existingPlant == null)
         {
             throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
         }
@@ -95,6 +103,10 @@ public class PlantService : IPlantService
 
     
 
+    private async Task VerifyUserExistsAsync(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
             throw new ArgumentException("Username is required");
         }
 
