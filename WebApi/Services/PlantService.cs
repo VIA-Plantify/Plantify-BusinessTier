@@ -49,7 +49,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlant = await _repository.GetPlantAsync(username,plantId);
+        var existingPlant = await _repository.GetPlantAsync(username, plantId);
        
         if (existingPlant == null)
         {
@@ -63,7 +63,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-        var plantToUpdate = await _repository.GetPlantAsync(username,plantId);
+        var plantToUpdate = await _repository.GetPlantAsync(username, plantId);
         
         if (plantToUpdate == null)
         {
@@ -91,7 +91,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-         var existingPlant = await _repository.GetPlantAsync(username,plantId);
+         var existingPlant = await _repository.GetPlantAsync(username, plantId);
 
         await _repository.DeleteAsync(username, plantId);
     }
