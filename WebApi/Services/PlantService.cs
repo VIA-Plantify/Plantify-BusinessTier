@@ -92,11 +92,6 @@ public class PlantService : IPlantService
         await VerifyUserExistsAsync(username);
 
          var existingPlant = await _repository.GetPlantAsync(username,plantId);
-        
-        if (existingPlant == null)
-        {
-            throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
-        }
 
         await _repository.DeleteAsync(username, plantId);
     }
