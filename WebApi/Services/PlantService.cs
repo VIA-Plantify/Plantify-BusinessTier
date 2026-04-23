@@ -49,33 +49,23 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlants = await _repository.GetPlantsByUsernameAsync(username);
-    
-        var plant = existingPlants.FirstOrDefault(p => p.Id == plantId);
-
-        if (plant == null)
+        var existingPlant = await _repository.GetPlantAsync(username,plantId);
+        {
+            throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
+        }
+        if (existingPlant == null)
         {
             throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
         }
 
-        return plant;    
-    }
-
-    public async Task UpdateAsync(string username, Plant plant)
-    {
+        return existingPlant;    
         await VerifyUserExistsAsync(username);
 
         var existingPlants = await _repository.GetPlantsByUsernameAsync(username);
         var plantToUpdate = existingPlants.FirstOrDefault(p => p.Id == plant.Id);
 
         if (plantToUpdate == null)
-        {
-            throw new KeyNotFoundException($"Plant with ID {plant.Id} not found for user {username}");
-        }
-
-        plantToUpdate.Name = plant.Name;
-        plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
-        plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
+        var plantToUpdate = await GetPlantAsync(username, plant.Id);
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;
         plantToUpdate.OptimalLightSensitivity = plant.OptimalLightSensitivity;
 
@@ -105,10 +95,6 @@ public class PlantService : IPlantService
 
     
 
-    private async Task VerifyUserExistsAsync(string username)
-    {
-        if (string.IsNullOrWhiteSpace(username))
-        {
             throw new ArgumentException("Username is required");
         }
 
