@@ -63,11 +63,12 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-        var plantToUpdate = await _repository.GetPlantAsync(username, plantId);
-        
+        var existingPlants = await _repository.GetPlantsByUsernameAsync(username);
+        var plantToUpdate = existingPlants.FirstOrDefault(p => p.Id == plant.Id);
+
         if (plantToUpdate == null)
         {
-            throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
+            throw new KeyNotFoundException($"Plant with ID {plant.Id} not found for user {username}");
         }
 
         plantToUpdate.Name = plant.Name;
