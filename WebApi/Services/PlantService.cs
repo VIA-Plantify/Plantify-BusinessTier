@@ -19,11 +19,17 @@ public class PlantService : IPlantService
     public async Task<Plant> CreateAsync(string username, Plant plant)
     {
         await VerifyUserExistsAsync(username);
+        
+        if (string.IsNullOrWhiteSpace(plant.MAC))
+        {
+            throw new ArgumentException("Plant MAC is required")
+        }
 
         if (string.IsNullOrWhiteSpace(plant.Name))
         {
             throw new ArgumentException("Plant name is required.");
         }
+        
 
         try
         {
@@ -45,15 +51,15 @@ public class PlantService : IPlantService
         return fetchedPlants ?? throw new InvalidOperationException("Failed to fetch plants");
     }
 
-    public async Task<Plant> GetPlantAsync(string username, int plantId)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC)
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlant = await _repository.GetPlantAsync(username, plantId);
+        var existingPlant = await _repository.GetPlantAsync(username, plantMAC);
        
         if (existingPlant == null)
         {
-            throw new KeyNotFoundException($"Plant with ID {plantId} not found for user {username}");
+            throw new KeyNotFoundException($"Plant with MAC address {plantMAC} not found for user {username}");
         }
 
         return existingPlant;    
@@ -68,7 +74,7 @@ public class PlantService : IPlantService
 
         if (plantToUpdate == null)
         {
-            throw new KeyNotFoundException($"Plant with ID {plant.Id} not found for user {username}");
+            throw new KeyNotFoundException($"Plant with MAC address {plant.MAC} not found for user {username}");
         }
 
         plantToUpdate.Name = plant.Name;
@@ -88,13 +94,13 @@ public class PlantService : IPlantService
     }
 
     
-    public async Task DeleteAsync(string username, int plantId)
+    public async Task DeleteAsync(string username, string plantMAC)
     {
         await VerifyUserExistsAsync(username);
 
-         var existingPlant = await _repository.GetPlantAsync(username, plantId);
+         var existingPlant = await _repository.GetPlantAsync(username, plantMAC);
 
-        await _repository.DeleteAsync(username, plantId);
+        await _repository.DeleteAsync(username, plantMAC);
     }
 
     
