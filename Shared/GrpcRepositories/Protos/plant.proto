@@ -21,17 +21,17 @@ message GetPlantsByUsernameRequest {
 
 message GetPlantRequest {
   string username = 1;
-  int32 plantId = 2;
+  string plantMAC = 2;
 }
 
 message DeletePlantRequest {
   string username = 1;
-  int32 plantId = 2;
+  string plantMAC = 2;
 }
 
 message UpdatePlantRequest {
   string username = 1;
-  int32 plantId = 2;
+  string plantMAC = 2;
   string name = 3;
 
   double optimalTemperature = 4;
@@ -42,7 +42,7 @@ message UpdatePlantRequest {
 
 
 message PlantResponse {
-  int32 plantId = 1;
+  string plantMAC = 1;
   string name = 2;
 
   double optimalTemperature = 3;

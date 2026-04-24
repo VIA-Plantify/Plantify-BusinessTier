@@ -5,5 +5,7 @@ public interface ITemperature
     
     double? CurrentTemperature { get; set; }
     IList<double?> PastTemperatureReadings { get; set; }
-    double OptimalTemperature { get; set; }
+    TemperatureScale CurrentScale { get; set; }
+
+    ITemperature ConvertTemperature(TemperatureScale scale);
 }
