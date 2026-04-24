@@ -15,7 +15,7 @@ public class PlantRepositoryGrpc : IPlantRepository
         throw new NotImplementedException();
     }
 
-    public Task<Plant> GetPlantAsync(string username, int plantId)
+    public Task<Plant> GetPlantAsync(string username, string plantMAC)
     {
         throw new NotImplementedException();
     }
@@ -25,7 +25,7 @@ public class PlantRepositoryGrpc : IPlantRepository
         throw new NotImplementedException();
     }
 
-    public Task DeleteAsync(string username, int plantId)
+    public Task DeleteAsync(string username, string plantMAC)
     {
         throw new NotImplementedException();
     }

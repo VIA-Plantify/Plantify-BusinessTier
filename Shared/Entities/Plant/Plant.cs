@@ -4,7 +4,8 @@ namespace Entities.Plant;
 
 public class Plant
 {
-    public int Id { get; set; }
+    //MAC address for the arduino network
+    public string MAC { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
 
     public ITemperature Temperature { get; set; } = new Temperature();
