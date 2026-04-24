@@ -27,4 +27,6 @@ jobs:
           context: .
           file: ./WebApi/WebAPI/Dockerfile
           push: true
-          tags: ghcr.io/via-plantify/plantify-businesstier/webapi:latest
+          tags: |
+            ghcr.io/via-plantify/plantify-businesstier/webapi:latest
+            ghcr.io/via-plantify/plantify-businesstier/webapi:${{ github.sha }}
