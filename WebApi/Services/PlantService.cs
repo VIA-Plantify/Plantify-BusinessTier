@@ -69,8 +69,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlants = await _repository.GetPlantsByUsernameAsync(username);
-        var plantToUpdate = existingPlants.FirstOrDefault(p => p.Id == plant.Id);
+        var plantToUpdate = await _repository.GetPlantAsync(username, plant.MAC);
 
         if (plantToUpdate == null)
         {
