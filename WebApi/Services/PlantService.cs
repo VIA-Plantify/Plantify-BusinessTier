@@ -22,7 +22,7 @@ public class PlantService : IPlantService
         
         if (string.IsNullOrWhiteSpace(plant.MAC))
         {
-            throw new ArgumentException("Plant MAC is required")
+            throw new ArgumentException("Plant MAC is required");
         }
 
         if (string.IsNullOrWhiteSpace(plant.Name))
