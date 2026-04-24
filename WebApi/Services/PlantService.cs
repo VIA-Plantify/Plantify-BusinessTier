@@ -80,7 +80,7 @@ public class PlantService : IPlantService
         plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
         plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;
-        plantToUpdate.OptimalLightSensitivity = plant.OptimalLightSensitivity;
+        plantToUpdate.OptimalLightIntensity = plant.OptimalLightIntensity;
 
         try
         {
