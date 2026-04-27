@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcRepositories";
+
+package sensors;
+import "google/protobuf/empty.proto";
+
+message AirHumidityResponse{
+  double value = 1;
+  repeated double previousValuesList = 2;
+}
+message LightIntensityResponse{
+  double value = 1;
+  repeated double previousValuesList = 2;
+  double period = 3;
+  repeated double previousPeriodList = 4;
+}
+message TemperatureResponse{
+  double value = 1;
+  repeated double previousValuesList = 2;
+}
+message SoilHumidityResponse{
+  double value = 1;
+  repeated double previousValuesList = 2;
+}

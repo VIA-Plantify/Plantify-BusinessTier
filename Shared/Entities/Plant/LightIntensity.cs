@@ -1,42 +1,41 @@
 namespace Entities.Plant;
 
-public class LightIntensity : ILightIntensity
+public class LightIntensity
 {
-    private double? currentIntensity;
-    private TimeSpan? currentPeriod;
-
-    public double? CurrentLightIntensity
+    private double? _value;
+    private TimeSpan? _period;
+    public double? Value
     {
-        get => currentIntensity;
+        get => _value;
         set
         {
             if (value is null)
             {
-                throw new ArgumentNullException(nameof(CurrentLightIntensity), "Light intensity is null");
+                throw new ArgumentNullException(nameof(_value), "Light intensity is null");
             }
             if (value < 0)
             {
                 throw new ArgumentException("Light intensity cannot be negative");
             }
-            currentIntensity = value;
+            _value = value;
         }
     }
 
-    public TimeSpan? CurrentLightPeriod
+    public TimeSpan? Period
     {
-        get => currentPeriod;
+        get => _period;
         set
         {
             if (value is null)
             {
-                throw new ArgumentNullException(nameof(CurrentLightPeriod), "Light period is null");
+                throw new ArgumentNullException(nameof(_value), "Light period is null");
             }
-            currentPeriod = value;
+            _period= value;
         }
     }
 
-    public IList<double?> PastLightIntensityReadings { get; set; } = new List<double?>();
+    public IList<double?> PastReadings { get; set; } = new List<double?>();
 
-    public IList<TimeSpan?> PastLightPeriodReadings { get; set; } = new List<TimeSpan?>();
+    public IList<TimeSpan?> PastPeriods { get; set; } = new List<TimeSpan?>();
     
 }

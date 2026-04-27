@@ -8,12 +8,12 @@ public class Plant
     public string MAC { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
 
-    public ITemperature Temperature { get; set; } = new Temperature();
-    public IAirHumidity AirHumidity { get; set; } = new AirHumidity();
-    public IWaterLevel WaterLevel { get; set; } = new WaterLevel();
-    public IWaterIntake WaterIntake { get; set; } = new WaterIntake();
-    public IHumidity SoilHumidity { get; set; } = new SoilHumidity();
-    public ILightIntensity LightIntensity { get; set; } = new LightIntensity();
+    public Temperature Temperature { get; set; } = new Temperature();
+    public AirHumidity AirHumidity { get; set; } = new AirHumidity();
+    public WaterLevel WaterLevel { get; set; } = new WaterLevel();
+    public WaterIntake WaterIntake { get; set; } = new WaterIntake();
+    public SoilHumidity SoilHumidity { get; set; } = new SoilHumidity();
+    public LightIntensity LightIntensity { get; set; } = new LightIntensity();
 
     private double _optimalTemperature;
     private double _optimalAirHumidity;
@@ -46,15 +46,15 @@ public class Plant
     {
         get
         {
-            if (Temperature.CurrentTemperature is null || OptimalTemperature == 0)
+            if (Temperature.Value is null || OptimalTemperature == 0)
                 return null;
 
-            double current = Temperature.CurrentTemperature.Value;
+            double current = Temperature.Value.Value;
 
-            if (Temperature.CurrentScale != TemperatureScale)
+            if (Temperature.Scale != TemperatureScale)
             {
                 current = TemperatureUtility.ConvertScale(
-                    Temperature.CurrentScale,
+                    Temperature.Scale,
                     TemperatureScale,
                     current
                 );
@@ -77,10 +77,10 @@ public class Plant
     }
 
     public int? AirHumidityDeviationPercent =>
-        AirHumidity.CurrentAirHumidity is null || OptimalAirHumidity == 0
+        AirHumidity.Value is null || OptimalAirHumidity == 0
             ? null
             : PercentUtility.CalculateDeviationPercent(
-                AirHumidity.CurrentAirHumidity,
+                AirHumidity.Value,
                 OptimalAirHumidity
             );
 
@@ -97,10 +97,10 @@ public class Plant
     }
 
     public int? SoilHumidityDeviationPercent =>
-        SoilHumidity.CurrentSoilHumidity is null || OptimalSoilHumidity == 0
+        SoilHumidity.Value is null || OptimalSoilHumidity == 0
             ? null
             : PercentUtility.CalculateDeviationPercent(
-                SoilHumidity.CurrentSoilHumidity,
+                SoilHumidity.Value,
                 OptimalSoilHumidity
             );
 
@@ -117,10 +117,10 @@ public class Plant
     }
 
     public int? LightIntensityDeviationPercent =>
-        LightIntensity.CurrentLightIntensity is null || OptimalLightIntensity == 0
+        LightIntensity.Value is null || OptimalLightIntensity == 0
             ? null
             : PercentUtility.CalculateDeviationPercent(
-                LightIntensity.CurrentLightIntensity,
+                LightIntensity.Value,
                 OptimalLightIntensity
             );
 

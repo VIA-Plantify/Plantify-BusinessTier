@@ -4,7 +4,7 @@ option csharp_namespace = "GrpcRepositories";
 
 package plant;
 import "google/protobuf/empty.proto";
-
+import "Protos/sensors.proto";
 // enums
 enum TemperatureScale {
   C = 0;
@@ -21,7 +21,7 @@ message CreatePlantRequest {
   double optimalSoilHumidity = 5;
   double optimalLightIntensity = 6;
   int64 optimalLightPeriodSeconds = 7;
-  
+
   TemperatureScale temperatureScale = 8;
 }
 
@@ -66,12 +66,12 @@ message PlantResponse {
   int64 optimalLightPeriodSeconds = 7;
 
   TemperatureScale temperatureScale = 8;
-  
+
   // Sensor state
-  double currentTemperature = 9; // or google.protobuf.DoubleValue cause we can have null when creating
-  double currentAirHumidity = 10;
-  double currentSoilHumidity= 11;
-  double currentLightIntensity = 12;
+  sensors.TemperatureResponse currentTemperature = 9;
+  sensors.AirHumidityResponse currentAirHumidity = 10;
+  sensors.SoilHumidityResponse currentSoilHumidity= 11;
+  sensors.LightIntensityResponse currentLightIntensity = 12;
 }
 
 message GetManyPlantResponse {
