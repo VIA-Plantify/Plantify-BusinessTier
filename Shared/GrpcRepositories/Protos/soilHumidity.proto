@@ -13,5 +13,5 @@ message CreateSoilHumidityRequest{
 
 //Services
 service SoilHumidityServiceProto {
-  rpc Create(CreateHumidityRequest) returns (google.protobuf.Empty);
+  rpc Create(CreateSoilHumidityRequest) returns (google.protobuf.Empty);
 }
