@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "GrpcRepositories";
 
-package soilhumidity;
+package soilHumidity;
 import "google/protobuf/empty.proto";
 
 //messages
