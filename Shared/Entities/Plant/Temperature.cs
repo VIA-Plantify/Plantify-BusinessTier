@@ -2,29 +2,41 @@ using Entities.Utils;
 
 namespace Entities.Plant;
 
-public class Temperature : ITemperature
+public class Temperature
 {
-    
-    public double? CurrentTemperature { get; set; }
-    public IList<double?> PastTemperatureReadings { get; set; } = new List<double?>();
-    
-    public TemperatureScale CurrentScale { get; set; } = TemperatureScale.C;
-    
-    public ITemperature ConvertTemperature(TemperatureScale scale)
+    private double? _value;
+    public double? Value
     {
-        if (CurrentScale == scale)
+        get => _value;
+        set
+        {
+            if (value.HasValue && (value < 0 || value > 200))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "Temperature must be between 0 and 200.");
+            }
+            _value = value;
+        }
+    }
+
+    public IList<double?> PastReadings { get; set; } = new List<double?>();
+    
+    public TemperatureScale Scale { get; set; } = TemperatureScale.C;
+    
+    public Temperature ConvertTemperature(TemperatureScale scale)
+    {
+        if (Scale == scale)
             return this;
 
-        if (CurrentTemperature is not null)
-            CurrentTemperature = TemperatureUtility.ConvertScale(CurrentScale, scale, CurrentTemperature.Value);
+        if (Value is not null)
+            Value = TemperatureUtility.ConvertScale(Scale, scale, Value.Value);
 
-        for (int i = 0; i < PastTemperatureReadings.Count; i++)
+        for (int i = 0; i < PastReadings.Count; i++)
         {
-            if (PastTemperatureReadings[i] is not null)
-                PastTemperatureReadings[i] = TemperatureUtility.ConvertScale(CurrentScale, scale, PastTemperatureReadings[i]!.Value);
+            if (PastReadings[i] is not null)
+                PastReadings[i] = TemperatureUtility.ConvertScale(Scale, scale, PastReadings[i]!.Value);
         }
 
-        CurrentScale = scale;
+        Scale = scale;
         return this;
     }
     

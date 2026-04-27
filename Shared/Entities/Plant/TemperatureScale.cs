@@ -2,6 +2,6 @@ namespace Entities.Plant;
 
 public enum TemperatureScale
 {
-    F,
-    C
+    C = 0,
+    F = 1
 }

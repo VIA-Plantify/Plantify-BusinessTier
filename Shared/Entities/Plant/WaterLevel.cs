@@ -1,6 +1,6 @@
 namespace Entities.Plant;
 
-public class WaterLevel : IWaterLevel
+public class WaterLevel
 {
     private double? waterDistance;
     private int? waterLevelPercentage;

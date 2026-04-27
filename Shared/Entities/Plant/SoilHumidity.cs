@@ -1,17 +1,17 @@
 namespace Entities.Plant;
 
-public class SoilHumidity : IHumidity
+public class SoilHumidity
 {
-    private double? currentHumidity;
+    private double? _value;
 
-    public double? CurrentSoilHumidity
+    public double? Value
     {
-        get => currentHumidity;
+        get => _value;
         set
         {
             if (value is null)
             {
-                throw new ArgumentNullException(nameof(CurrentSoilHumidity), "Soil humidity is null");
+                throw new ArgumentNullException(nameof(_value), "Soil humidity is null");
             }
 
             if (value < 0)
@@ -19,9 +19,9 @@ public class SoilHumidity : IHumidity
                 throw new ArgumentException("Soil humidity cannot be negative");
             }
 
-            currentHumidity = value;
+            _value = value;
         }
     }
 
-    public IList<double?> PastSoilHumidityReadings { get; set; } = new List<double?>();
+    public IList<double?> PastReadings { get; set; } = new List<double?>();
 }

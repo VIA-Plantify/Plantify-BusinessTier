@@ -1,47 +1,173 @@
 using Entities.Plant;
 using RepositoryContracts;
+using Grpc.Core;
 
 namespace GrpcRepositories.Services;
 
-public class PlantRepositoryGrpc : IPlantRepository
+public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient client) : IPlantRepository
 {
-    public Task<Plant> CreateAsync(string username, Plant plant)
+    private readonly PlantServiceProto.PlantServiceProtoClient _client = client;
+    
+    public async Task<Plant> CreateAsync(string username, Plant plant)
     {
-        throw new NotImplementedException();
+        var request = new CreatePlantRequest
+        {
+            Username = username,
+            Name = plant.Name,
+
+            OptimalTemperature = plant.OptimalTemperature,
+            OptimalAirHumidity = plant.OptimalAirHumidity,
+            OptimalSoilHumidity = plant.OptimalSoilHumidity,
+            OptimalLightIntensity = plant.OptimalLightIntensity,
+            OptimalLightPeriodSeconds = (long)plant.OptimalLightPeriod.TotalSeconds,
+
+            TemperatureScale = (GrpcRepositories.TemperatureScale)plant.TemperatureScale
+        };
+
+        try
+        {
+            var response = await _client.CreateAsync(request);
+            return ParsePlantResponseToEntity(response);
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Failed to create plant: {ex.Status.Detail}");
+        }
     }
 
-    public Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username)
-    {
-        throw new NotImplementedException();
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username)
+    { try
+        {
+            var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
+            {
+                Username = username
+            });
+
+            return response.Plants.Select(ParsePlantResponseToEntity);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"No plants found for user {username}.");
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error retrieving plants: {ex.Status.Detail}");
+        }
     }
 
-    public Task<Plant> GetPlantAsync(string username, string plantMAC)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await _client.GetAsync(new GetPlantRequest
+            {
+                Username = username,
+                PlantMAC = plantMAC
+            });
+
+            return ParsePlantResponseToEntity(response);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"Plant with MAC {plantMAC} not found.");
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error retrieving plant: {ex.Status.Detail}");
+        }
     }
 
-    public Task<Plant> GetPlantAsync(int id, string username)
+    public async Task DeleteAsync(string username, string plantMAC)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await _client.DeleteAsync(new DeletePlantRequest
+            {
+                Username = username,
+                PlantMAC = plantMAC
+            });
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"Plant with MAC {plantMAC} not found.");
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error deleting plant: {ex.Status.Detail}");
+        }
     }
 
-    public Task DeleteAsync(string username, string plantMAC)
+    public async Task UpdateAsync(string username, Plant plant)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            await _client.UpdateAsync(new UpdatePlantRequest
+            {
+                Username = username,
+                PlantMAC = plant.MAC,
+                Name = plant.Name,
 
-    public Task UpdateAsync(string username, Plant plant)
-    {
-        throw new NotImplementedException();
-    }
+                OptimalTemperature = plant.OptimalTemperature,
+                OptimalAirHumidity = plant.OptimalAirHumidity,
+                OptimalSoilHumidity = plant.OptimalSoilHumidity,
+                OptimalLightIntensity = plant.OptimalLightIntensity,
+                OptimalLightPeriodSeconds = (long)plant.OptimalLightPeriod.TotalSeconds,
 
-    public Task<IEnumerable<Plant>> GetManyAsync(string username)
-    {
-        throw new NotImplementedException();
+                TemperatureScale = (GrpcRepositories.TemperatureScale)plant.TemperatureScale
+            });
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"Plant with MAC {plant.MAC} not found.");
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error updating plant: {ex.Status.Detail}");
+        }
     }
-
-    public Task<IEnumerable<Plant>> GetManyAsync()
+    
+    private Plant ParsePlantResponseToEntity(PlantResponse? response)
     {
-        throw new NotImplementedException();
+        if (CheckResponse(response))
+        {
+            throw new InvalidOperationException("Plant response is null or invalid.");
+        }
+
+        return new Plant
+        {
+            MAC = response.PlantMAC,
+            Name = response.Name,
+
+            OptimalTemperature = response.OptimalTemperature,
+            OptimalAirHumidity = response.OptimalAirHumidity,
+            OptimalSoilHumidity = response.OptimalSoilHumidity,
+            OptimalLightIntensity = response.OptimalLightIntensity,
+            OptimalLightPeriod = TimeSpan.FromSeconds(response.OptimalLightPeriodSeconds),
+
+            TemperatureScale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
+
+            // Sensor state
+            Temperature = new Temperature
+            {
+                Value = response.CurrentTemperature.Value
+            },
+            AirHumidity = new AirHumidity
+            {
+                Value = response.CurrentAirHumidity.Value
+            },
+            SoilHumidity = new SoilHumidity
+            {
+                Value = response.CurrentSoilHumidity.Value
+            },
+            LightIntensity = new LightIntensity
+            {
+                Value = response.CurrentLightIntensity.Value
+            }
+        };
+    }
+    
+    private bool CheckResponse(PlantResponse? response)
+    {
+        return response is null || string.IsNullOrWhiteSpace(response.PlantMAC); 
     }
 }

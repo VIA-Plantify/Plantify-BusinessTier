@@ -4,7 +4,14 @@ option csharp_namespace = "GrpcRepositories";
 
 package plant;
 import "google/protobuf/empty.proto";
+import "Protos/sensors.proto";
+// enums
+enum TemperatureScale {
+  C = 0;
+  F = 1;
+}
 
+// Requests
 message CreatePlantRequest {
   string username = 1;
   string name = 2;
@@ -12,7 +19,10 @@ message CreatePlantRequest {
   double optimalTemperature = 3;
   double optimalAirHumidity = 4;
   double optimalSoilHumidity = 5;
-  double optimalLightSensitivity = 6;
+  double optimalLightIntensity = 6;
+  int64 optimalLightPeriodSeconds = 7;
+
+  TemperatureScale temperatureScale = 8;
 }
 
 message GetPlantsByUsernameRequest {
@@ -37,27 +47,41 @@ message UpdatePlantRequest {
   double optimalTemperature = 4;
   double optimalAirHumidity = 5;
   double optimalSoilHumidity = 6;
-  double optimalLightSensitivity = 7;
+  double optimalLightIntensity = 7;
+  int64 optimalLightPeriodSeconds = 8;
+
+  TemperatureScale temperatureScale = 9;
 }
 
-
+// Responses
 message PlantResponse {
   string plantMAC = 1;
   string name = 2;
 
+  // Configuration
   double optimalTemperature = 3;
   double optimalAirHumidity = 4;
   double optimalSoilHumidity = 5;
-  double optimalLightSensitivity = 6;
+  double optimalLightIntensity = 6;
+  int64 optimalLightPeriodSeconds = 7;
+
+  TemperatureScale temperatureScale = 8;
+
+  // Sensor state
+  sensors.TemperatureResponse currentTemperature = 9;
+  sensors.AirHumidityResponse currentAirHumidity = 10;
+  sensors.SoilHumidityResponse currentSoilHumidity= 11;
+  sensors.LightIntensityResponse currentLightIntensity = 12;
 }
 
 message GetManyPlantResponse {
   repeated PlantResponse plants = 1;
 }
 
+// Service
 service PlantServiceProto {
   rpc Create(CreatePlantRequest) returns (PlantResponse);
-  rpc GetByUsername(GetPlantsByUsernameRequest) returns (GetManyPlantResponse);
+  rpc GetPlantsByUsername(GetPlantsByUsernameRequest) returns (GetManyPlantResponse);
   rpc Get(GetPlantRequest) returns (PlantResponse);
   rpc Update(UpdatePlantRequest) returns (google.protobuf.Empty);
   rpc Delete(DeletePlantRequest) returns (google.protobuf.Empty);
