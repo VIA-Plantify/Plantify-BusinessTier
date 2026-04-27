@@ -2,16 +2,16 @@ syntax = "proto3";
 
 option csharp_namespace = "GrpcRepositories";
 
-package plant;
+package soilhumidity;
 import "google/protobuf/empty.proto";
 
 //messages
-message CreateHumidityRequest{
+message CreateSoilHumidityRequest{
   string plantMAC = 1;
   double value = 2;
 }
 
 //Services
-service HumidityServiceProto {
+service SoilHumidityServiceProto {
   rpc Create(CreateHumidityRequest) returns (google.protobuf.Empty);
 }
