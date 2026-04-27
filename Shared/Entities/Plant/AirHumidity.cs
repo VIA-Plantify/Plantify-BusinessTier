@@ -1,20 +1,20 @@
 namespace Entities.Plant;
 
-public class AirHumidity : IAirHumidity
+public class AirHumidity
 {
-    private double? _currentAirHumidity;
+    private double? _value;
 
-    public double? CurrentAirHumidity
+    public double? Value
     {
-        get => _currentAirHumidity;
+        get => _value;
         set
         {
             if (value.HasValue && (value < 0 || value > 100))
             {
                 throw new ArgumentOutOfRangeException(nameof(value), "Humidity must be between 0 and 100.");
             }
-            _currentAirHumidity = value;
+            _value = value;
         }
     }
-    public IList<double?> PastAirHumidityReadings { get; set; } = new List<double?>(); 
+    public IList<double?> PastReadings { get; set; } = new List<double?>(); 
 }

@@ -1,6 +1,6 @@
 namespace Entities.Plant;
 
-public class WaterIntake : IWaterIntake
+public class WaterIntake
 {
     private DateTime? pumpTime;
     private double? volume;
