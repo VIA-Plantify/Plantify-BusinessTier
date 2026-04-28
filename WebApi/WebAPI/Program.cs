@@ -34,6 +34,7 @@ builder.Services.AddCors(options =>
         }
         else
         {
+            //relax cors for dev
             policy
                 .AllowAnyMethod()
                 .AllowAnyHeader()
