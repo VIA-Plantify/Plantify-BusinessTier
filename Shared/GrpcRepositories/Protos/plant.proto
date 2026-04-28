@@ -27,11 +27,13 @@ message CreatePlantRequest {
 
 message GetPlantsByUsernameRequest {
   string username = 1;
+  int32 numberOfReadings = 2;
 }
 
 message GetPlantRequest {
   string username = 1;
   string plantMAC = 2;
+  int32 numberOfReadings = 3;
 }
 
 message DeletePlantRequest {
@@ -57,21 +59,22 @@ message UpdatePlantRequest {
 message PlantResponse {
   string plantMAC = 1;
   string name = 2;
+  string username = 3;
 
   // Configuration
-  double optimalTemperature = 3;
-  double optimalAirHumidity = 4;
-  double optimalSoilHumidity = 5;
-  double optimalLightIntensity = 6;
-  int64 optimalLightPeriodSeconds = 7;
+  double optimalTemperature = 4;
+  double optimalAirHumidity = 5;
+  double optimalSoilHumidity = 6;
+  double optimalLightIntensity = 7;
+  int64 optimalLightPeriodSeconds = 8;
 
-  TemperatureScale temperatureScale = 8;
+  TemperatureScale temperatureScale = 9;
 
   // Sensor state
-  sensors.TemperatureResponse currentTemperature = 9;
-  sensors.AirHumidityResponse currentAirHumidity = 10;
-  sensors.SoilHumidityResponse currentSoilHumidity= 11;
-  sensors.LightIntensityResponse currentLightIntensity = 12;
+  sensors.TemperatureResponse currentTemperature = 10;
+  sensors.AirHumidityResponse currentAirHumidity = 11;
+  sensors.SoilHumidityResponse currentSoilHumidity= 12;
+  sensors.LightIntensityResponse currentLightIntensity = 13;
 }
 
 message GetManyPlantResponse {
