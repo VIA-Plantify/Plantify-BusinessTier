@@ -50,7 +50,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
              var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
             {
                 Username = username,
-                Number = numberOfReadings.Value
+                NumberOfReadings = numberOfReadings.Value
             });
 
             return response.Plants.Select(ParsePlantResponseToEntity);
@@ -74,7 +74,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             {
                 Username = username,
                 PlantMAC = plantMAC,
-                Number = numberOfReadings.Value
+                NumberOfReadings = numberOfReadings.Value
             });
 
             return ParsePlantResponseToEntity(response);
