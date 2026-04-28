@@ -5,5 +5,5 @@ namespace RepositoryContracts;
 public interface IHumidityRepository
 {
     
-    Task CreateAsync(string plantMAC,SoilHumidity soilHumidity);
+    Task CreateAsync(string plantMAC, SoilHumidity soilHumidity);
 }
