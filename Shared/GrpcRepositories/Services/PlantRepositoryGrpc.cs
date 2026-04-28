@@ -21,8 +21,8 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 var response = await _client.CreateAsync(new CreatePlantRequest
                 {
                     Username = plant.Username,
-                    Name = plant.Name,
-
+                    Name = plant.Name, 
+                    MAC = plant.MAC,
                     OptimalTemperature = plant.OptimalTemperature,
                     OptimalAirHumidity = plant.OptimalAirHumidity,
                     OptimalSoilHumidity = plant.OptimalSoilHumidity,
