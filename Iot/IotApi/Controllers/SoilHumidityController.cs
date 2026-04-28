@@ -27,4 +27,10 @@ public class SoilHumidityController (ISoilHumidityService service) : ControllerB
             return StatusCode(500, ex.Message);
         }
     }
+    //TODO remove after
+    [HttpGet]
+    public async Task<ActionResult<string>> Get()
+    {
+    return Ok("You've hit the soil endpoint of Plantify");
+    }
 }

@@ -36,8 +36,6 @@ builder.Services.AddScoped<ISoilHumidityService, SoilHumidityService>();
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
-
 app.UseRouting();
 
 app.UseCors("Arduino");
