@@ -157,19 +157,19 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             // Sensor state
             Temperature = new Temperature
             {
-                Value = response.CurrentTemperature.Value
+                Value = response.CurrentTemperature?.Value ?? 0
             },
             AirHumidity = new AirHumidity
             {
-                Value = response.CurrentAirHumidity.Value
+                Value = response.CurrentAirHumidity?.Value ?? 0
             },
             SoilHumidity = new SoilHumidity
             {
-                Value = response.CurrentSoilHumidity.Value
+                Value = response.CurrentSoilHumidity?.Value ?? 0
             },
             LightIntensity = new LightIntensity
             {
-                Value = response.CurrentLightIntensity.Value
+                Value = response.CurrentLightIntensity?.Value ?? 0
             }
         };
     }

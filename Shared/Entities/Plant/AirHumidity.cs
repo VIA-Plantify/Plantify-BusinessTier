@@ -9,6 +9,7 @@ public class AirHumidity
         get => _value;
         set
         {
+            
             if (value is null)
             {
                 throw new ArgumentNullException(nameof(_value), "Air humidity is null");
