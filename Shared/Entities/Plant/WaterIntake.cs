@@ -10,9 +10,6 @@ public class WaterIntake
         get => pumpTime;
         set
         {
-            if (value is null)
-                throw new ArgumentNullException(nameof(PumpTime), "Pump time is null");
-
             if (value > DateTime.Now)
                 throw new ArgumentException("Pump time cannot be in the future");
 
