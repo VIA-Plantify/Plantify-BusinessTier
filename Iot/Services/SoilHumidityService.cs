@@ -6,9 +6,9 @@ namespace Services;
 
 public class SoilHumidityService : ISoilHumidityService
 {
-    private readonly IHumidityRepository _repository;
+    private readonly ISoilHumidityRepository _repository;
 
-    public SoilHumidityService(IHumidityRepository repository)
+    public SoilHumidityService(ISoilHumidityRepository repository)
     {
         this._repository = repository;
     }
