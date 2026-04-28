@@ -9,10 +9,6 @@ public class LightIntensity
         get => _value;
         set
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(_value), "Light intensity is null");
-            }
             if (value < 0)
             {
                 throw new ArgumentException("Light intensity cannot be negative");

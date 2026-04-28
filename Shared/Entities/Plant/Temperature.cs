@@ -10,11 +10,6 @@ public class Temperature
         get => _value;
         set
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(_value), "Temperature is null");
-            }
-            
             if (value.HasValue && (value < 0 || value > 200))
             {
                 throw new ArgumentOutOfRangeException(nameof(value), "Temperature must be between 0 and 200.");
