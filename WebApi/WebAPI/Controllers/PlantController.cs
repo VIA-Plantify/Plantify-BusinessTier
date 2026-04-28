@@ -1,3 +1,4 @@
+using DTOs.Plant;
 using Entities.Plant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
 {
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<Plant>> Post([FromBody] Plant dto)
+    public async Task<ActionResult<Plant>> CreateAsync([FromBody] PlantDto dto)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -56,7 +57,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
  
     [HttpGet("p/{plantMAC}")]
     [Authorize]
-    public async Task<ActionResult<Plant>> GetPlant([FromRoute] string? plantMAC)
+    public async Task<ActionResult<Plant>> GetPlant([FromRoute] string? plantMAC, [FromQuery] int? numberOfReadings)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -69,8 +70,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 return BadRequest("Plant MAC address must be provided");
             }
-            //TODO
-            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);
+            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, numberOfReadings);
             CheckPlantDataIntegrity(plant);
             return Ok(plant);
         }
@@ -86,7 +86,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
  
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants()
+    public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants([FromQuery] int? numberOfReadings)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -95,7 +95,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, null);//TODO
+            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, numberOfReadings);
             return Ok(plants);
         }
         catch (ArgumentException ex)
@@ -114,7 +114,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
  
     [HttpPut("{plantMAC}")]
     [Authorize]
-    public async Task<ActionResult<Plant>> Update([FromRoute] string plantMAC, [FromBody] Plant dto)
+    public async Task<ActionResult> Update([FromRoute] string plantMAC, [FromBody] PlantDto dto)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
  
@@ -124,7 +124,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);//TODO
+            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);
             if (existingPlant == null)
             {
                 return NotFound("Plant not found.");
@@ -140,7 +140,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 OptimalLightPeriod = dto.OptimalLightPeriod
             };
             await plantService.UpdateAsync(plantToUpdate);
-            return Ok(plantToUpdate);
+            return NoContent();
         }
         catch (ArgumentException ex)
         {
@@ -167,7 +167,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);//TODO
+            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);
             CheckPlantDataIntegrity(plant);
             await plantService.DeleteAsync(loggedInUsername, plantMAC);
             return NoContent();
