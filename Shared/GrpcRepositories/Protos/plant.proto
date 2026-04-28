@@ -15,14 +15,14 @@ enum TemperatureScale {
 message CreatePlantRequest {
   string username = 1;
   string name = 2;
+  string MAC = 3;
+  double optimalTemperature = 4;
+  double optimalAirHumidity = 5;
+  double optimalSoilHumidity = 6;
+  double optimalLightIntensity = 7;
+  int64 optimalLightPeriodSeconds = 8;
 
-  double optimalTemperature = 3;
-  double optimalAirHumidity = 4;
-  double optimalSoilHumidity = 5;
-  double optimalLightIntensity = 6;
-  int64 optimalLightPeriodSeconds = 7;
-
-  TemperatureScale temperatureScale = 8;
+  TemperatureScale temperatureScale = 9;
 }
 
 message GetPlantsByUsernameRequest {
