@@ -58,6 +58,14 @@ builder.Services.AddGrpcClient<UserServiceProto.UserServiceProtoClient>(options 
 {
     options.Address = new Uri(grpcAddress);
 });
+builder.Services.AddGrpcClient<PlantServiceProto.PlantServiceProtoClient>(options =>
+{
+    options.Address = new Uri(grpcAddress);
+});
+builder.Services.AddGrpcClient<SoilHumidityServiceProto.SoilHumidityServiceProtoClient>(options =>
+{
+    options.Address = new Uri(grpcAddress);
+});
 
 // Configure JWT
 var jwtKey = builder.Configuration["Jwt:Key"]
@@ -90,10 +98,16 @@ builder.Services
 // Repositories
 builder.Services.AddScoped<IAuthRepository, AuthRepositoryGrpc>();
 builder.Services.AddScoped<IUserRepository, UserRepositoryGrpc>();
+builder.Services.AddScoped<IPlantRepository, PlantRepositoryGrpc>();
+builder.Services.AddScoped<IHumidityRepository, SoilHumidityRepositoryGrpc>();
+
+
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPlantService, PlantService>();
+
 
 var app = builder.Build();
 
