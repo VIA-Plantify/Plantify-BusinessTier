@@ -10,29 +10,37 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
     
     public async Task<Plant> CreateAsync(string username, Plant plant)
     {
-        var request = new CreatePlantRequest
-        {
-            Username = username,
-            Name = plant.Name,
-
-            OptimalTemperature = plant.OptimalTemperature,
-            OptimalAirHumidity = plant.OptimalAirHumidity,
-            OptimalSoilHumidity = plant.OptimalSoilHumidity,
-            OptimalLightIntensity = plant.OptimalLightIntensity,
-            OptimalLightPeriodSeconds = (long)plant.OptimalLightPeriod.TotalSeconds,
-
-            TemperatureScale = (GrpcRepositories.TemperatureScale)plant.TemperatureScale
-        };
-
         try
         {
-            var response = await _client.CreateAsync(request);
-            return ParsePlantResponseToEntity(response);
+            await GetPlantAsync(username, plant.MAC);
         }
-        catch (RpcException ex)
+        catch (InvalidOperationException)
         {
-            throw new InvalidOperationException($"Failed to create plant: {ex.Status.Detail}");
+            try
+            {
+                var response = await _client.CreateAsync(new CreatePlantRequest
+                {
+                    Username = username,
+                    Name = plant.Name,
+
+                    OptimalTemperature = plant.OptimalTemperature,
+                    OptimalAirHumidity = plant.OptimalAirHumidity,
+                    OptimalSoilHumidity = plant.OptimalSoilHumidity,
+                    OptimalLightIntensity = plant.OptimalLightIntensity,
+                    OptimalLightPeriodSeconds = (long)plant.OptimalLightPeriod.TotalSeconds,
+
+                    TemperatureScale = (GrpcRepositories.TemperatureScale)plant.TemperatureScale
+                });
+
+                return ParsePlantResponseToEntity(response);
+            }
+            catch (RpcException ex)
+            {
+                throw new InvalidOperationException($"Failed to create plant: {ex.Status.Detail}");
+            }
         }
+        
+        throw new InvalidOperationException($"Plant with MAC {plant.MAC} already exists.");
     }
 
     public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username)
@@ -149,19 +157,19 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             // Sensor state
             Temperature = new Temperature
             {
-                Value = response.CurrentTemperature.Value
+                Value = response.CurrentTemperature?.Value ?? 0
             },
             AirHumidity = new AirHumidity
             {
-                Value = response.CurrentAirHumidity.Value
+                Value = response.CurrentAirHumidity?.Value ?? 0
             },
             SoilHumidity = new SoilHumidity
             {
-                Value = response.CurrentSoilHumidity.Value
+                Value = response.CurrentSoilHumidity?.Value ?? 0
             },
             LightIntensity = new LightIntensity
             {
-                Value = response.CurrentLightIntensity.Value
+                Value = response.CurrentLightIntensity?.Value ?? 0
             }
         };
     }

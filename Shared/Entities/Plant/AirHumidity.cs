@@ -9,6 +9,12 @@ public class AirHumidity
         get => _value;
         set
         {
+            
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(_value), "Air humidity is null");
+            }
+            
             if (value.HasValue && (value < 0 || value > 100))
             {
                 throw new ArgumentOutOfRangeException(nameof(value), "Humidity must be between 0 and 100.");
