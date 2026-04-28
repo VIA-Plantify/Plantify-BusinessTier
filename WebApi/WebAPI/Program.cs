@@ -24,11 +24,22 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
+        if (builder.Environment.IsProduction())
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else
+        {
+            policy
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials();
+        }
     });
 });
 
@@ -107,8 +118,10 @@ builder.Services.AddScoped<IPlantService, PlantService>();
 
 
 var app = builder.Build();
-
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 app.UseCors("Frontend");
