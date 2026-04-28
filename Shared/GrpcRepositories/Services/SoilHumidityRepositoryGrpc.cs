@@ -4,7 +4,7 @@ using RepositoryContracts;
 
 namespace GrpcRepositories.Services;
 
-public class SoilHumidityRepositoryGrpc(SoilHumidityServiceProto.SoilHumidityServiceProtoClient client) : IHumidityRepository
+public class SoilHumidityRepositoryGrpc(SoilHumidityServiceProto.SoilHumidityServiceProtoClient client) : ISoilHumidityRepository
 {
     private readonly SoilHumidityServiceProto.SoilHumidityServiceProtoClient _client = client;
 

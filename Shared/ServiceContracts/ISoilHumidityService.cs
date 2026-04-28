@@ -2,7 +2,7 @@ using RepositoryContracts;
 
 namespace ServiceContracts;
 
-public interface ISoilHumidityService : IHumidityRepository
+public interface ISoilHumidityService : ISoilHumidityRepository
 {
     
 }
