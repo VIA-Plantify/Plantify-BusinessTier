@@ -1,6 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 USER $APP_UID
 WORKDIR /app
+ENV ASPNETCORE_URLS=http://+:11081
 EXPOSE 11081
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
