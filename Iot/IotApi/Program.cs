@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using Entities.Plant;
+using GrpcRepositories;
 using ServiceContracts;
+using RepositoryContracts;
+using GrpcRepositories.Services;
 using Services;
 var builder = WebApplication.CreateBuilder(args);
 
