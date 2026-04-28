@@ -24,13 +24,14 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 MAC = dto.MAC,
                 Name = dto.Name,
+                Username = loggedInUsername,
                 OptimalTemperature = dto.OptimalTemperature,
                 OptimalAirHumidity = dto.OptimalAirHumidity,
                 OptimalSoilHumidity = dto.OptimalSoilHumidity,
                 OptimalLightIntensity = dto.OptimalLightIntensity,
                 OptimalLightPeriod = dto.OptimalLightPeriod
             };
-            var created = await plantService.CreateAsync(loggedInUsername, plant);
+            var created = await plantService.CreateAsync(plant);
             CheckPlantDataIntegrity(created);
  
             return CreatedAtAction(
@@ -68,7 +69,8 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 return BadRequest("Plant MAC address must be provided");
             }
-            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC);
+            //TODO
+            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);
             CheckPlantDataIntegrity(plant);
             return Ok(plant);
         }
@@ -93,7 +95,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername);
+            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, null);//TODO
             return Ok(plants);
         }
         catch (ArgumentException ex)
@@ -122,7 +124,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC);
+            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);//TODO
             if (existingPlant == null)
             {
                 return NotFound("Plant not found.");
@@ -137,7 +139,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 OptimalLightIntensity = dto.OptimalLightIntensity,
                 OptimalLightPeriod = dto.OptimalLightPeriod
             };
-            await plantService.UpdateAsync(loggedInUsername, plantToUpdate);
+            await plantService.UpdateAsync(plantToUpdate);
             return Ok(plantToUpdate);
         }
         catch (ArgumentException ex)
@@ -165,7 +167,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC);
+            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);//TODO
             CheckPlantDataIntegrity(plant);
             await plantService.DeleteAsync(loggedInUsername, plantMAC);
             return NoContent();

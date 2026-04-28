@@ -7,6 +7,7 @@ public class Plant
     //MAC address for the arduino network
     public string MAC { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
 
     public Temperature Temperature { get; set; } = new Temperature();
     public AirHumidity AirHumidity { get; set; } = new AirHumidity();

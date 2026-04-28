@@ -37,10 +37,11 @@ public class PlantRepositoryGrpcTests
             .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(new PlantResponse
             {
                 PlantMAC = "MAC1",
+                Username = "user1",
                 Name = "Rose"
             }));
 
-        var result = await _repository.CreateAsync("user1", plant);
+        var result = await _repository.CreateAsync(plant);
 
         Assert.That(result.MAC, Is.EqualTo("MAC1"));
     }
@@ -56,7 +57,7 @@ public class PlantRepositoryGrpcTests
             }));
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _repository.CreateAsync("user1", new Plant { MAC = "MAC1" }));
+            await _repository.CreateAsync( new Plant { MAC = "MAC1", Username = "user1" }));
     }
     
     [Test]
@@ -69,7 +70,7 @@ public class PlantRepositoryGrpcTests
                 It.IsAny<GetPlantsByUsernameRequest>(), null, null, default))
             .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(response));
 
-        var result = (await _repository.GetPlantsByUsernameAsync("user1")).ToList();
+        var result = (await _repository.GetPlantsByUsernameAsync("user1", null)).ToList();
 
         Assert.That(result.Count, Is.EqualTo(1));
     }
@@ -82,7 +83,7 @@ public class PlantRepositoryGrpcTests
             .Throws(new RpcException(new Status(StatusCode.NotFound, "not found")));
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _repository.GetPlantsByUsernameAsync("user1"));
+            await _repository.GetPlantsByUsernameAsync("user1", null));
     }
     
     [Test]
@@ -96,7 +97,7 @@ public class PlantRepositoryGrpcTests
                 Name = "Rose"
             }));
 
-        var result = await _repository.GetPlantAsync("user1", "MAC1");
+        var result = await _repository.GetPlantAsync("user1", "MAC1", null);
 
         Assert.That(result.MAC, Is.EqualTo("MAC1"));
     }
@@ -109,7 +110,7 @@ public class PlantRepositoryGrpcTests
             .Throws(new RpcException(new Status(StatusCode.NotFound, "not found")));
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _repository.GetPlantAsync("user1", "MAC1"));
+            await _repository.GetPlantAsync("user1", "MAC1", null));
     }
     
     [Test] 
@@ -140,13 +141,13 @@ public class PlantRepositoryGrpcTests
     [Test]
     public async Task UpdateAsync_Valid_CallsGrpc()
     {
-        var plant = new Plant { MAC = "MAC1", Name = "Updated" };
+        var plant = new Plant { MAC = "MAC1",Username = "user1", Name = "Updated" };
 
         _grpcMock.Setup(x => x.UpdateAsync(
                 It.IsAny<UpdatePlantRequest>(), null, null, default))
             .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(new Empty()));
 
-        await _repository.UpdateAsync("user1", plant);
+        await _repository.UpdateAsync(plant);
 
         _grpcMock.Verify(x => x.UpdateAsync(
             It.Is<UpdatePlantRequest>(r => r.PlantMAC == "MAC1"),
@@ -163,7 +164,7 @@ public class PlantRepositoryGrpcTests
             .Throws(new RpcException(new Status(StatusCode.NotFound, "not found")));
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _repository.UpdateAsync("user1", plant));
+            await _repository.UpdateAsync( plant));
     }
     
     

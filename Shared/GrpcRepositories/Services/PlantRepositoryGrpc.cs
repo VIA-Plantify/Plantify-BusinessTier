@@ -8,11 +8,11 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
 {
     private readonly PlantServiceProto.PlantServiceProtoClient _client = client;
     
-    public async Task<Plant> CreateAsync(string username, Plant plant)
+    public async Task<Plant> CreateAsync(Plant plant)
     {
         try
         {
-            await GetPlantAsync(username, plant.MAC);
+            await GetPlantAsync(plant.Username, plant.MAC, null);
         }
         catch (InvalidOperationException)
         {
@@ -20,7 +20,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             {
                 var response = await _client.CreateAsync(new CreatePlantRequest
                 {
-                    Username = username,
+                    Username = plant.Username,
                     Name = plant.Name,
 
                     OptimalTemperature = plant.OptimalTemperature,
@@ -43,12 +43,14 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         throw new InvalidOperationException($"Plant with MAC {plant.MAC} already exists.");
     }
 
-    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username)
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
     { try
         {
-            var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
+            numberOfReadings = numberOfReadings ?? 0;
+             var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
             {
-                Username = username
+                Username = username,
+                Number = numberOfReadings.Value
             });
 
             return response.Plants.Select(ParsePlantResponseToEntity);
@@ -63,14 +65,16 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
     }
 
-    public async Task<Plant> GetPlantAsync(string username, string plantMAC)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfReadings)
     {
         try
         {
+            numberOfReadings = numberOfReadings ?? 0;
             var response = await _client.GetAsync(new GetPlantRequest
             {
                 Username = username,
-                PlantMAC = plantMAC
+                PlantMAC = plantMAC,
+                Number = numberOfReadings.Value
             });
 
             return ParsePlantResponseToEntity(response);
@@ -105,13 +109,13 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
     }
 
-    public async Task UpdateAsync(string username, Plant plant)
+    public async Task UpdateAsync(Plant plant)
     {
         try
         {
             await _client.UpdateAsync(new UpdatePlantRequest
             {
-                Username = username,
+                Username = plant.Username,
                 PlantMAC = plant.MAC,
                 Name = plant.Name,
 
@@ -145,7 +149,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         {
             MAC = response.PlantMAC,
             Name = response.Name,
-
+            Username = response.Username,
             OptimalTemperature = response.OptimalTemperature,
             OptimalAirHumidity = response.OptimalAirHumidity,
             OptimalSoilHumidity = response.OptimalSoilHumidity,
