@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Shared\Entities\Entities.csproj" />
+      <ProjectReference Include="..\..\Shared\GrpcRepositories\GrpcRepositories.csproj" />
+      <ProjectReference Include="..\..\Shared\RepositoryContracts\RepositoryContracts.csproj" />
+      <ProjectReference Include="..\..\Shared\ServiceContracts\ServiceContracts.csproj" />
+    </ItemGroup>
+
+</Project>

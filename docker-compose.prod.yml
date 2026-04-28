@@ -5,7 +5,7 @@ services:
     image: webapi:latest
     build:
       context: .
-      dockerfile: WebApi/WebAPI/Dockerfile
+      dockerfile: WebApi/WebAPI/Dockerfile.local
     container_name: webapi
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -13,6 +13,21 @@ services:
       Grpc__ServerUrl: http://grpcserver:10081
     ports:
       - "8081:8081"
+    networks:
+      - plantify-network
+      
+  iotapi:
+    image: iotapi:latest
+    build:
+      context: .
+      dockerfile: Iot/IotApi/Dockerfile.local
+    container_name: iotapi
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:11081"
+      Grpc__ServerUrl: http://grpcserver:10081
+    ports:
+      - "11081:11081"
     networks:
       - plantify-network
 

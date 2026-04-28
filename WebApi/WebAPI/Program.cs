@@ -1,5 +1,4 @@
 using System.Text;
-using Grpc.Net.Client;
 using GrpcRepositories;
 using GrpcRepositories.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,11 +10,40 @@ using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 Directory.CreateDirectory("Logs");
+
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
-builder.Services.AddCors();
+
+// Configure CORS
+var allowedOrigins = builder.Configuration
+    .GetSection("AllowedOrigins")
+    .Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        if (builder.Environment.IsProduction())
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else
+        {
+            //relax cors for dev
+            policy
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials();
+        }
+    });
+});
+
 // Configure Serilog
 builder.Host.UseSerilog((ctx, services, lc) => lc
     .MinimumLevel.Information()
@@ -29,9 +57,10 @@ builder.Host.UseSerilog((ctx, services, lc) => lc
         retainedFileCountLimit: 14)
 );
 
-// Configure GrpcClients
+// Configure gRPC clients
 var grpcAddress = builder.Configuration["GrpcServer:Address"]
                   ?? throw new InvalidOperationException("GrpcServer:Address is missing.");
+
 builder.Services.AddGrpcClient<AuthServiceProto.AuthServiceProtoClient>(options =>
 {
     options.Address = new Uri(grpcAddress);
@@ -41,51 +70,65 @@ builder.Services.AddGrpcClient<UserServiceProto.UserServiceProtoClient>(options 
 {
     options.Address = new Uri(grpcAddress);
 });
-
-// Configure Token
-builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+builder.Services.AddGrpcClient<PlantServiceProto.PlantServiceProtoClient>(options =>
 {
-    options.MapInboundClaims = false;
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "")),
-        ClockSkew = TimeSpan.Zero,
-    }; 
+    options.Address = new Uri(grpcAddress);
 });
 
-// Configure Services
 
-// Grpc Repositories
+// Configure JWT
+var jwtKey = builder.Configuration["Jwt:Key"]
+             ?? throw new InvalidOperationException("Jwt:Key is missing.");
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+                ?? throw new InvalidOperationException("Jwt:Issuer is missing.");
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+                  ?? throw new InvalidOperationException("Jwt:Audience is missing.");
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = jwtAudience,
+            ValidIssuer = jwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+// Repositories
 builder.Services.AddScoped<IAuthRepository, AuthRepositoryGrpc>();
 builder.Services.AddScoped<IUserRepository, UserRepositoryGrpc>();
+builder.Services.AddScoped<IPlantRepository, PlantRepositoryGrpc>();
+
+
+
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPlantService, PlantService>();
 
 
 var app = builder.Build();
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
+    app.UseHttpsRedirection();
 }
 
-
 app.UseRouting();
-app.UseCors(x => x
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-    .SetIsOriginAllowed(origin => true) 
-    .AllowCredentials());
-app.UseHttpsRedirection();
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

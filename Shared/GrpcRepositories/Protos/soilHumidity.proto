@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcRepositories";
+
+package soilHumidity;
+import "google/protobuf/empty.proto";
+
+//messages
+message CreateSoilHumidityRequest{
+  string plantMAC = 1;
+  double value = 2;
+}
+
+//Services
+service SoilHumidityServiceProto {
+  rpc Create(CreateSoilHumidityRequest) returns (google.protobuf.Empty);
+}
