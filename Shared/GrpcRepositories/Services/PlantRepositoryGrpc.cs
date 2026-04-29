@@ -159,34 +159,45 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             TemperatureScale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
 
             // Sensor state
-            Temperature = new Temperature
-            {
-                Value = response.CurrentTemperature.Value,
-                PastReadings = response.CurrentTemperature.PreviousValuesList
-                    .Select(v => (double?)v)
-                    .ToList()
-            },
-            AirHumidity = new AirHumidity
-            {
-                Value = response.CurrentAirHumidity.Value,
-                PastReadings = response.CurrentAirHumidity.PreviousValuesList
-                .Select(v => (double?)v)
-                .ToList()
-            },
-            SoilHumidity = new SoilHumidity
-            {
-                Value = response.CurrentSoilHumidity.Value,
-                PastReadings = response.CurrentSoilHumidity.PreviousValuesList
-                .Select(v => (double?)v)
-                .ToList()
-            },
-            LightIntensity = new LightIntensity
-            {
-                Value = response.CurrentLightIntensity.Value,
-                PastReadings = response.CurrentLightIntensity.PreviousValuesList
-                .Select(v => (double?)v)
-                .ToList()
-            }
+            Temperature = (response.CurrentTemperature == null
+                ? null
+                : new Temperature
+                {
+                    Value = response.CurrentTemperature.Value,
+                    PastReadings = response.CurrentTemperature.PreviousValuesList
+                        .Select(v => (double?)v)
+                        .ToList()
+                }) ?? new Temperature(),
+
+            AirHumidity = (response.CurrentAirHumidity == null
+                ? null
+                : new AirHumidity
+                {
+                    Value = response.CurrentAirHumidity.Value,
+                    PastReadings = response.CurrentAirHumidity.PreviousValuesList
+                        .Select(v => (double?)v)
+                        .ToList()
+                }) ?? new AirHumidity(),
+
+            SoilHumidity = (response.CurrentSoilHumidity == null
+                ? null
+                : new SoilHumidity
+                {
+                    Value = response.CurrentSoilHumidity.Value,
+                    PastReadings = response.CurrentSoilHumidity.PreviousValuesList
+                        .Select(v => (double?)v)
+                        .ToList()
+                }) ?? new SoilHumidity(),
+
+            LightIntensity = (response.CurrentLightIntensity == null
+                ? null
+                : new LightIntensity
+                {
+                    Value = response.CurrentLightIntensity.Value,
+                    PastReadings = response.CurrentLightIntensity.PreviousValuesList
+                        .Select(v => (double?)v)
+                        .ToList()
+                }) ?? new LightIntensity()
         };
     }
     
