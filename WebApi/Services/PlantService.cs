@@ -16,9 +16,9 @@ public class PlantService : IPlantService
         _userRepository = userRepository;
     }
 
-    public async Task<Plant> CreateAsync(string username, Plant plant)
+    public async Task<Plant> CreateAsync(Plant plant)
     {
-        await VerifyUserExistsAsync(username);
+        await VerifyUserExistsAsync(plant.Username);
         
         if (string.IsNullOrWhiteSpace(plant.MAC))
         {
@@ -33,7 +33,7 @@ public class PlantService : IPlantService
 
         try
         {
-            var createdPlant = await _repository.CreateAsync(username, plant);
+            var createdPlant = await _repository.CreateAsync(plant);
             return createdPlant;
         }
         catch (Exception e)
@@ -41,21 +41,21 @@ public class PlantService : IPlantService
             throw new InvalidOperationException($"Failed to create plant: {e.Message}");
         }
     }
-
-    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username)
+    
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
     {
         await VerifyUserExistsAsync(username);
         
-        var fetchedPlants = await _repository.GetPlantsByUsernameAsync(username);
+        var fetchedPlants = await _repository.GetPlantsByUsernameAsync(username, numberOfReadings);
         
         return fetchedPlants ?? throw new InvalidOperationException("Failed to fetch plants");
     }
 
-    public async Task<Plant> GetPlantAsync(string username, string plantMAC)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfReadings)
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlant = await _repository.GetPlantAsync(username, plantMAC);
+        var existingPlant = await _repository.GetPlantAsync(username, plantMAC, numberOfReadings);
        
         if (existingPlant == null)
         {
@@ -65,17 +65,16 @@ public class PlantService : IPlantService
         return existingPlant;    
     }
 
-    public async Task UpdateAsync(string username, Plant plant)
+    public async Task UpdateAsync(Plant plant)
     {
-        await VerifyUserExistsAsync(username);
+        await VerifyUserExistsAsync(plant.Username);
 
-        var plantToUpdate = await _repository.GetPlantAsync(username, plant.MAC);
+        var plantToUpdate = await _repository.GetPlantAsync(plant.Username, plant.MAC, null);
 
         if (plantToUpdate == null)
         {
-            throw new KeyNotFoundException($"Plant with MAC address {plant.MAC} not found for user {username}");
+            throw new KeyNotFoundException($"Plant with MAC address {plant.MAC} not found for user {plant.Username}");
         }
-
         plantToUpdate.Name = plant.Name;
         plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
         plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
@@ -84,7 +83,7 @@ public class PlantService : IPlantService
 
         try
         {
-            await _repository.UpdateAsync(username,plantToUpdate);
+            await _repository.UpdateAsync(plantToUpdate);
         }
         catch (Exception e)
         {
@@ -97,7 +96,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-         var existingPlant = await _repository.GetPlantAsync(username, plantMAC);
+         var existingPlant = await _repository.GetPlantAsync(username, plantMAC, null);
 
         await _repository.DeleteAsync(username, plantMAC);
     }

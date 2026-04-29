@@ -9,11 +9,6 @@ public class SoilHumidity
         get => _value;
         set
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(_value), "Soil humidity is null");
-            }
-
             if (value < 0)
             {
                 throw new ArgumentException("Soil humidity cannot be negative");

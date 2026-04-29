@@ -24,11 +24,23 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
+        if (builder.Environment.IsProduction())
+        {
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else
+        {
+            //relax cors for dev
+            policy
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials();
+        }
     });
 });
 
@@ -58,6 +70,11 @@ builder.Services.AddGrpcClient<UserServiceProto.UserServiceProtoClient>(options 
 {
     options.Address = new Uri(grpcAddress);
 });
+builder.Services.AddGrpcClient<PlantServiceProto.PlantServiceProtoClient>(options =>
+{
+    options.Address = new Uri(grpcAddress);
+});
+
 
 // Configure JWT
 var jwtKey = builder.Configuration["Jwt:Key"]
@@ -90,14 +107,22 @@ builder.Services
 // Repositories
 builder.Services.AddScoped<IAuthRepository, AuthRepositoryGrpc>();
 builder.Services.AddScoped<IUserRepository, UserRepositoryGrpc>();
+builder.Services.AddScoped<IPlantRepository, PlantRepositoryGrpc>();
+
+
+
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPlantService, PlantService>();
+
 
 var app = builder.Build();
-
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 app.UseCors("Frontend");

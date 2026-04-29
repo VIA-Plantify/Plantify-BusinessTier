@@ -11,9 +11,6 @@ public class WaterLevel
         get => waterDistance;
         set
         {
-            if (value is null)
-                throw new ArgumentException("Water distance is null");
-
             if (value < 0)
                 throw new ArgumentException("Water distance cannot be negative");
 
