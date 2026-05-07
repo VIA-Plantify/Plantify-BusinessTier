@@ -24,7 +24,7 @@ public class PlantRepositoryGrpcTests
     [Test]
     public async Task CreateAsync_PlantDoesNotExist_CreatesPlant()
     {
-        var plant = new Plant { MAC = "MAC1", Name = "Rose" };
+        var plant = new Plant { MAC = "MAC1", Name = "Rose", Username = "user1"};
 
         // First call: GetPlantAsync -> NOT FOUND
         _grpcMock.Setup(x => x.GetAsync(
@@ -157,7 +157,7 @@ public class PlantRepositoryGrpcTests
     [Test]
     public void UpdateAsync_NotFound_Throws()
     {
-        var plant = new Plant { MAC = "MAC1" };
+        var plant = new Plant { MAC = "MAC1", Username = "user1"};
 
         _grpcMock.Setup(x => x.UpdateAsync(
                 It.IsAny<UpdatePlantRequest>(), null, null, default))

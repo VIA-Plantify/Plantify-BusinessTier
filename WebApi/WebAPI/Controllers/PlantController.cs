@@ -132,11 +132,11 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 MAC = existingPlant.MAC,
                 Name = dto.Name,
+                Username = dto.Username,
                 OptimalTemperature = dto.OptimalTemperature,
                 OptimalAirHumidity = dto.OptimalAirHumidity,
                 OptimalSoilHumidity = dto.OptimalSoilHumidity,
                 OptimalLightIntensity = dto.OptimalLightIntensity,
-                OptimalLightPeriod = dto.OptimalLightPeriod
             };
             await plantService.UpdateAsync(plantToUpdate);
             return NoContent();
