@@ -12,6 +12,7 @@ public class Watering
         get => pumpTimeInSeconds;
         set
         {
+            
             if (value is null)
                 throw new ArgumentNullException(nameof(PumpTimeInSeconds), "Pump time in seconds is null");
 
