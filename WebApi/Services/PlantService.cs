@@ -46,7 +46,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
         
-        var fetchedPlants = await _repository.GetPlantsByUsernameAsync(username, numberOfReadings);
+        var fetchedPlants = await _repository.GetPlantsByUsernameAsync(username, numberOfSensorReadings, numberOfWateringReadings);
         
         return fetchedPlants ?? throw new InvalidOperationException("Failed to fetch plants");
     }
@@ -69,7 +69,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(plant.Username);
 
-        var plantToUpdate = await _repository.GetPlantAsync(plant.Username, plant.MAC, null);
+        var plantToUpdate = await _repository.GetPlantAsync(plant.Username, plant.MAC, null, null);
 
         if (plantToUpdate == null)
         {

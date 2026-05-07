@@ -42,7 +42,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
     }
    
 
-    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         try
         {
@@ -51,7 +51,8 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
             {
                 Username = username,
-                NumberOfReadings = numberOfReadings.Value
+                NumberOfReadings = numberOfSensorReadings.Value,
+                NumberOfWateringReadings = numberOfWateringReadings.Value,
             });
 
             return response.Plants.Select(ParsePlantResponseToEntity);
