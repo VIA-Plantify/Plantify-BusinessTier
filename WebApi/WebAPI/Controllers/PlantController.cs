@@ -56,7 +56,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
  
     [HttpGet("p/{plantMAC}")]
     [Authorize]
-    public async Task<ActionResult<Plant>> GetPlant([FromRoute] string? plantMAC, [FromQuery] int? numberOfReadings)
+    public async Task<ActionResult<Plant>> GetPlant([FromRoute] string? plantMAC, [FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -69,7 +69,9 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 return BadRequest("Plant MAC address must be provided");
             }
-            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, numberOfReadings);
+
+            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, numberOfSensorReadings,
+                numberOfWateringReadings);
             CheckPlantDataIntegrity(plant);
             return Ok(plant);
         }
@@ -85,7 +87,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
  
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants([FromQuery] int? numberOfReadings)
+    public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants([FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -94,7 +96,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, numberOfReadings);
+            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, numberOfSensorReadings, numberOfWateringReadings);
             return Ok(plants);
         }
         catch (ArgumentException ex)
@@ -123,7 +125,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);
+            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null,null);
             if (existingPlant == null)
             {
                 return NotFound("Plant not found.");
@@ -166,7 +168,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null);
+            var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null, null);
             CheckPlantDataIntegrity(plant);
             await plantService.DeleteAsync(loggedInUsername, plantMAC);
             return NoContent();

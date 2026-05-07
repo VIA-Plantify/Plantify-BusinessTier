@@ -7,21 +7,21 @@ namespace GrpcRepositories.Services;
 public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient client) : IPlantRepository
 {
     private readonly PlantServiceProto.PlantServiceProtoClient _client = client;
-    
+
     public async Task<Plant> CreateAsync(Plant plant)
     {
         try
         {
             await GetPlantAsync(plant.Username, plant.MAC, null);
         }
-        catch (KeyNotFoundException)
+        catch (InvalidOperationException)
         {
             try
             {
                 var response = await _client.CreateAsync(new CreatePlantRequest
                 {
                     Username = plant.Username,
-                    Name = plant.Name, 
+                    Name = plant.Name,
                     MAC = plant.MAC,
                     OptimalTemperature = plant.OptimalTemperature,
                     OptimalAirHumidity = plant.OptimalAirHumidity,
@@ -37,15 +37,17 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 throw new InvalidOperationException($"Failed to create plant: {ex.Status.Detail}");
             }
         }
-        
+
         throw new InvalidOperationException($"Plant with MAC {plant.MAC} already exists.");
     }
+   
 
     public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
     {
         try
         {
-            numberOfReadings = numberOfReadings ?? 0;
+            numberOfSensorReadings ??= 0;
+            numberOfWateringReadings ??= 0;
             var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
             {
                 Username = username,
@@ -56,7 +58,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
-            throw new KeyNotFoundException($"No plants found for user {username}.");
+            throw new InvalidOperationException($"No plants found for user {username}.");
         }
         catch (RpcException ex)
         {
@@ -64,23 +66,25 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
     }
 
-    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfReadings)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         try
         {
-            numberOfReadings = numberOfReadings ?? 0;
+            numberOfWateringReadings ??= 0;
+            numberOfSensorReadings ??= 0;
             var response = await _client.GetAsync(new GetPlantRequest
             {
                 Username = username,
                 PlantMAC = plantMAC,
-                NumberOfSensorReadings = numberOfReadings.Value
+                NumberOfSensorReadings = numberOfSensorReadings.Value,
+                NumberOfWateringReadings =  numberOfWateringReadings.Value
             });
 
             return ParsePlantResponseToEntity(response);
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
-            throw new KeyNotFoundException($"Plant with MAC {plantMAC} not found.");
+            throw new InvalidOperationException($"Plant with MAC {plantMAC} not found."); 
         }
         catch (RpcException ex)
         {
@@ -100,7 +104,8 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
-            throw new KeyNotFoundException($"Plant with MAC {plantMAC} not found.");
+            // Test expects InvalidOperationException
+            throw new InvalidOperationException($"Plant with MAC {plantMAC} not found.");
         }
         catch (RpcException ex)
         {
@@ -126,20 +131,18 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
-            throw new KeyNotFoundException($"Plant with MAC {plant.MAC} not found.");
+            throw new InvalidOperationException($"Plant with MAC {plant.MAC} not found.");
         }
         catch (RpcException ex)
         {
             throw new InvalidOperationException($"Error updating plant: {ex.Status.Detail}");
         }
     }
-    
+
     private Plant ParsePlantResponseToEntity(PlantResponse? response)
     {
         if (IsInvalidResponse(response))
-        {
             throw new InvalidOperationException("Plant response is null or invalid.");
-        }
 
         return new Plant
         {
@@ -164,14 +167,14 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             {
                 WaterLevel = response.Watering.WaterLevel,
                 PumpTimeInSeconds = response.Watering.PumpTimeInSeconds,
-                LastWaterTime = response.Watering.LastWaterTime?.ToDateTime(),
-                PredictedFutureWaterTime = response.Watering.PredictedFutureWaterTime?.ToDateTime(),
+                LastWaterTime = response.Watering.LastWaterTime?.ToDateTime() ?? default,
+                PredictedFutureWaterTime = response.Watering.PredictedFutureWaterTime?.ToDateTime() ?? default,
             }
         };
     }
-    
+
     private bool IsInvalidResponse(PlantResponse? response)
     {
-        return response is null || string.IsNullOrWhiteSpace(response.PlantMAC); 
+        return response is null || string.IsNullOrWhiteSpace(response.PlantMAC);
     }
 }

@@ -21,7 +21,7 @@ public record PlantDto
     public required double OptimalAirHumidity { get; init; }
     public required double OptimalSoilHumidity { get; init; }
     public required double OptimalLightIntensity { get; init; }
-    public required long OptimalLightPeriod { get; init; } // seconds
+    
 
     // Temperature scale
     public TemperatureScale Scale { get; init; }

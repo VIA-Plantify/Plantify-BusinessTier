@@ -42,7 +42,7 @@ public class PlantService : IPlantService
         }
     }
     
-    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         await VerifyUserExistsAsync(username);
         
@@ -51,11 +51,11 @@ public class PlantService : IPlantService
         return fetchedPlants ?? throw new InvalidOperationException("Failed to fetch plants");
     }
 
-    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfReadings)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlant = await _repository.GetPlantAsync(username, plantMAC, numberOfReadings);
+        var existingPlant = await _repository.GetPlantAsync(username, plantMAC, numberOfSensorReadings, numberOfWateringReadings );
        
         if (existingPlant == null)
         {

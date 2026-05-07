@@ -4,16 +4,16 @@ namespace Entities.Plant;
 
 public class Plant
 {
-    // MAC address for the arduino network 
+    
     public string MAC { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public required string Username { get; set; }
 
-    // Sensor data
+    
     public SensorData SensorData { get; set; } = new SensorData();
     public List<SensorData> PreviousSensorData { get; set; } = [];
 
-    // Watering data
+    
     public Watering Watering { get; set; } = new Watering();
     public List<Watering> PreviousWaterings { get; set; } = [];
 
