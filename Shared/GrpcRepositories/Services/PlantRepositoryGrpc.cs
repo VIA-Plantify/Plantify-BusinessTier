@@ -74,7 +74,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             {
                 Username = username,
                 PlantMAC = plantMAC,
-                NumberOfReadings = numberOfReadings.Value
+                //NumberOfReadings = numberOfReadings.Value
             });
 
             return ParsePlantResponseToEntity(response);
