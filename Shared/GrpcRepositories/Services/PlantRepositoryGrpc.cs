@@ -7,12 +7,12 @@ namespace GrpcRepositories.Services;
 public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient client) : IPlantRepository
 {
     private readonly PlantServiceProto.PlantServiceProtoClient _client = client;
-    
+
     public async Task<Plant> CreateAsync(Plant plant)
     {
         try
         {
-            await GetPlantAsync(plant.Username, plant.MAC, null);
+            await GetPlantAsync(plant.Username, plant.MAC, null, null);
         }
         catch (InvalidOperationException)
         {
@@ -21,15 +21,13 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 var response = await _client.CreateAsync(new CreatePlantRequest
                 {
                     Username = plant.Username,
-                    Name = plant.Name, 
+                    Name = plant.Name,
                     MAC = plant.MAC,
                     OptimalTemperature = plant.OptimalTemperature,
                     OptimalAirHumidity = plant.OptimalAirHumidity,
                     OptimalSoilHumidity = plant.OptimalSoilHumidity,
                     OptimalLightIntensity = plant.OptimalLightIntensity,
-                    OptimalLightPeriodSeconds = (long)plant.OptimalLightPeriod.TotalSeconds,
-
-                    TemperatureScale = (GrpcRepositories.TemperatureScale)plant.TemperatureScale
+                    TemperatureScale = (GrpcRepositories.TemperatureScale)plant.Scale
                 });
 
                 return ParsePlantResponseToEntity(response);
@@ -39,18 +37,22 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 throw new InvalidOperationException($"Failed to create plant: {ex.Status.Detail}");
             }
         }
-        
+
         throw new InvalidOperationException($"Plant with MAC {plant.MAC} already exists.");
     }
+   
 
-    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
-    { try
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfSensorReadings, int? numberOfWateringReadings)
+    {
+        try
         {
-            numberOfReadings = numberOfReadings ?? 0;
-             var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
+            numberOfSensorReadings ??= 0;
+            numberOfWateringReadings ??= 0;
+            var response = await _client.GetPlantsByUsernameAsync(new GetPlantsByUsernameRequest
             {
                 Username = username,
-                NumberOfReadings = numberOfReadings.Value
+                NumberOfReadings = numberOfSensorReadings.Value,
+                NumberOfWateringReadings = numberOfWateringReadings.Value,
             });
 
             return response.Plants.Select(ParsePlantResponseToEntity);
@@ -65,23 +67,25 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
     }
 
-    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfReadings)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         try
         {
-            numberOfReadings = numberOfReadings ?? 0;
+            numberOfWateringReadings ??= 0;
+            numberOfSensorReadings ??= 0;
             var response = await _client.GetAsync(new GetPlantRequest
             {
                 Username = username,
                 PlantMAC = plantMAC,
-                NumberOfReadings = numberOfReadings.Value
+                NumberOfSensorReadings = numberOfSensorReadings.Value,
+                NumberOfWateringReadings =  numberOfWateringReadings.Value
             });
 
             return ParsePlantResponseToEntity(response);
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
-            throw new InvalidOperationException($"Plant with MAC {plantMAC} not found.");
+            throw new InvalidOperationException($"Plant with MAC {plantMAC} not found."); 
         }
         catch (RpcException ex)
         {
@@ -101,6 +105,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
+            // Test expects InvalidOperationException
             throw new InvalidOperationException($"Plant with MAC {plantMAC} not found.");
         }
         catch (RpcException ex)
@@ -118,14 +123,11 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 Username = plant.Username,
                 PlantMAC = plant.MAC,
                 Name = plant.Name,
-
                 OptimalTemperature = plant.OptimalTemperature,
                 OptimalAirHumidity = plant.OptimalAirHumidity,
                 OptimalSoilHumidity = plant.OptimalSoilHumidity,
                 OptimalLightIntensity = plant.OptimalLightIntensity,
-                OptimalLightPeriodSeconds = (long)plant.OptimalLightPeriod.TotalSeconds,
-
-                TemperatureScale = (GrpcRepositories.TemperatureScale)plant.TemperatureScale
+                TemperatureScale = (GrpcRepositories.TemperatureScale)plant.Scale
             });
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
@@ -137,13 +139,11 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             throw new InvalidOperationException($"Error updating plant: {ex.Status.Detail}");
         }
     }
-    
+
     private Plant ParsePlantResponseToEntity(PlantResponse? response)
     {
-        if (CheckResponse(response))
-        {
+        if (IsInvalidResponse(response))
             throw new InvalidOperationException("Plant response is null or invalid.");
-        }
 
         return new Plant
         {
@@ -154,55 +154,28 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             OptimalAirHumidity = response.OptimalAirHumidity,
             OptimalSoilHumidity = response.OptimalSoilHumidity,
             OptimalLightIntensity = response.OptimalLightIntensity,
-            OptimalLightPeriod = TimeSpan.FromSeconds(response.OptimalLightPeriodSeconds),
+            Scale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
 
-            TemperatureScale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
+            SensorData = response.SensorData == null ? new SensorData() : new SensorData
+            {
+                Temperature = response.SensorData.Temperature,
+                AirHumidity = response.SensorData.AirHumidity,
+                SoilHumidity = response.SensorData.SoilHumidity,
+                LightIntensity = response.SensorData.LightIntensity,
+            },
 
-            // Sensor state
-            Temperature = (response.CurrentTemperature == null
-                ? null
-                : new Temperature
-                {
-                    Value = response.CurrentTemperature.Value,
-                    PastReadings = response.CurrentTemperature.PreviousValuesList
-                        .Select(v => (double?)v)
-                        .ToList()
-                }) ?? new Temperature(),
-
-            AirHumidity = (response.CurrentAirHumidity == null
-                ? null
-                : new AirHumidity
-                {
-                    Value = response.CurrentAirHumidity.Value,
-                    PastReadings = response.CurrentAirHumidity.PreviousValuesList
-                        .Select(v => (double?)v)
-                        .ToList()
-                }) ?? new AirHumidity(),
-
-            SoilHumidity = (response.CurrentSoilHumidity == null
-                ? null
-                : new SoilHumidity
-                {
-                    Value = response.CurrentSoilHumidity.Value,
-                    PastReadings = response.CurrentSoilHumidity.PreviousValuesList
-                        .Select(v => (double?)v)
-                        .ToList()
-                }) ?? new SoilHumidity(),
-
-            LightIntensity = (response.CurrentLightIntensity == null
-                ? null
-                : new LightIntensity
-                {
-                    Value = response.CurrentLightIntensity.Value,
-                    PastReadings = response.CurrentLightIntensity.PreviousValuesList
-                        .Select(v => (double?)v)
-                        .ToList()
-                }) ?? new LightIntensity()
+            Watering = response.Watering == null ? new Watering() : new Watering
+            {
+                WaterLevel = response.Watering.WaterLevel,
+                PumpTimeInSeconds = response.Watering.PumpTimeInSeconds,
+                LastWaterTime = response.Watering.LastWaterTime?.ToDateTime() ?? default,
+                PredictedFutureWaterTime = response.Watering.PredictedFutureWaterTime?.ToDateTime() ?? default,
+            }
         };
     }
-    
-    private bool CheckResponse(PlantResponse? response)
+
+    private bool IsInvalidResponse(PlantResponse? response)
     {
-        return response is null || string.IsNullOrWhiteSpace(response.PlantMAC); 
+        return response is null || string.IsNullOrWhiteSpace(response.PlantMAC);
     }
 }

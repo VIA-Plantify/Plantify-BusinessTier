@@ -42,20 +42,20 @@ public class PlantService : IPlantService
         }
     }
     
-    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfReadings)
+    public async Task<IEnumerable<Plant>> GetPlantsByUsernameAsync(string username, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         await VerifyUserExistsAsync(username);
         
-        var fetchedPlants = await _repository.GetPlantsByUsernameAsync(username, numberOfReadings);
+        var fetchedPlants = await _repository.GetPlantsByUsernameAsync(username, numberOfSensorReadings, numberOfWateringReadings);
         
         return fetchedPlants ?? throw new InvalidOperationException("Failed to fetch plants");
     }
 
-    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfReadings)
+    public async Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfSensorReadings, int? numberOfWateringReadings)
     {
         await VerifyUserExistsAsync(username);
 
-        var existingPlant = await _repository.GetPlantAsync(username, plantMAC, numberOfReadings);
+        var existingPlant = await _repository.GetPlantAsync(username, plantMAC, numberOfSensorReadings, numberOfWateringReadings );
        
         if (existingPlant == null)
         {
@@ -69,7 +69,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(plant.Username);
 
-        var plantToUpdate = await _repository.GetPlantAsync(plant.Username, plant.MAC, null);
+        var plantToUpdate = await _repository.GetPlantAsync(plant.Username, plant.MAC, null, null);
 
         if (plantToUpdate == null)
         {
@@ -96,7 +96,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-         var existingPlant = await _repository.GetPlantAsync(username, plantMAC, null);
+         var existingPlant = await _repository.GetPlantAsync(username, plantMAC, null, null);
 
         await _repository.DeleteAsync(username, plantMAC);
     }
