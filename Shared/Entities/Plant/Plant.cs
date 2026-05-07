@@ -21,7 +21,6 @@ public class Plant
     private double _optimalAirHumidity;
     private double _optimalSoilHumidity;
     private double _optimalLightIntensity;
-    private long _optimalLightPeriod; // bigint → seconds
     private TemperatureScale _scale = TemperatureScale.C;
 
     public TemperatureScale Scale
@@ -104,16 +103,4 @@ public class Plant
         SensorData.LightIntensity == 0 || OptimalLightIntensity == 0
             ? null
             : PercentUtility.CalculateDeviationPercent(SensorData.LightIntensity, OptimalLightIntensity);
-
-    public long OptimalLightPeriod
-    {
-        get => _optimalLightPeriod;
-        set
-        {
-            if (value < 0)
-                throw new ArgumentOutOfRangeException(nameof(value), "Light period cannot be negative.");
-
-            _optimalLightPeriod = value;
-        }
-    }
 }
