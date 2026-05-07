@@ -4,7 +4,7 @@ namespace Entities.Plant;
 
 public class SensorData
 {
-    public long Id { get; set; }
+    public long Id { get; set; } 
     
     private double _temperature;
     private double _airHumidity;
