@@ -12,7 +12,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
     {
         try
         {
-            await GetPlantAsync(plant.Username, plant.MAC, null);
+            await GetPlantAsync(plant.Username, plant.MAC, null, null);
         }
         catch (InvalidOperationException)
         {

@@ -96,7 +96,7 @@ public class PlantService : IPlantService
     {
         await VerifyUserExistsAsync(username);
 
-         var existingPlant = await _repository.GetPlantAsync(username, plantMAC, null);
+         var existingPlant = await _repository.GetPlantAsync(username, plantMAC, null, null);
 
         await _repository.DeleteAsync(username, plantMAC);
     }
