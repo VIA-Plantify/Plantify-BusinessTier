@@ -2,7 +2,7 @@ using GrpcRepositories;
 using ServiceContracts;
 using RepositoryContracts;
 using GrpcRepositories.Services;
-using Services;
+//using Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -11,10 +11,6 @@ builder.Services.AddAuthorization();
 var grpcAddress = builder.Configuration["GrpcServer:Address"]
                   ?? throw new InvalidOperationException("GrpcServer:Address is missing.");
 
-builder.Services.AddGrpcClient<SoilHumidityServiceProto.SoilHumidityServiceProtoClient>(options =>
-{
-    options.Address = new Uri(grpcAddress);
-});
 
 var allowedOrigins = builder.Configuration
     .GetSection("AllowedOrigins")
@@ -30,9 +26,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
-
-builder.Services.AddScoped<ISoilHumidityRepository, SoilHumidityRepositoryGrpc>();
-builder.Services.AddScoped<ISoilHumidityService, SoilHumidityService>();
 
 var app = builder.Build();
 

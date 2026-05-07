@@ -4,22 +4,37 @@ option csharp_namespace = "GrpcRepositories";
 
 package sensors;
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
-message AirHumidityResponse{
-  double value = 1;
-  repeated double previousValuesList = 2;
+message SensorResponse {
+  double SoilHumidity = 1;
+  double LightIntensity = 2;
+  double AirHumidity = 3;
+  double Temperature = 4;
+  string plantMAC = 5;
+  int64 Id = 6;
+  google.protobuf.Timestamp Timestamp = 7;
 }
-message LightIntensityResponse{
-  double value = 1;
-  repeated double previousValuesList = 2;
-  double period = 3;
-  repeated double previousPeriodList = 4;
+message CreateSensorDataRequest{
+  double SoilHumidity = 1;
+  double LightIntensity = 2;
+  double AirHumidity = 3;
+  double Temperature = 4;
+  string plantMAC = 5;
+  google.protobuf.Timestamp Timestamp = 6;
 }
-message TemperatureResponse{
-  double value = 1;
-  repeated double previousValuesList = 2;
+message GetLatestSensorDataRequest{
+  string plantMac = 1;
 }
-message SoilHumidityResponse{
-  double value = 1;
-  repeated double previousValuesList = 2;
+message PreviousSensorResponses{
+  repeated double PreviousSoilHumidity = 1;
+  repeated double PreviousLightIntensity = 2;
+  repeated double PreviousAirHumidity = 3;
+  repeated double PreviousTemperature = 4;
+  string plantMAC = 5;
+  repeated google.protobuf.Timestamp Timestamp = 6;
+}
+service SensorServiceProto {
+  rpc Create(CreateSensorDataRequest) returns (google.protobuf.Empty);
+  rpc GetLatest(GetLatestSensorDataRequest) returns (SensorResponse);
 }

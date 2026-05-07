@@ -24,7 +24,7 @@ public class PlantRepositoryGrpcTests
     [Test]
     public async Task CreateAsync_PlantDoesNotExist_CreatesPlant()
     {
-        var plant = new Plant { MAC = "MAC1", Name = "Rose" };
+        var plant = new Plant { MAC = "MAC1", Name = "Rose", Username = "user1"};
 
         // First call: GetPlantAsync -> NOT FOUND
         _grpcMock.Setup(x => x.GetAsync(
@@ -38,7 +38,7 @@ public class PlantRepositoryGrpcTests
             {
                 PlantMAC = "MAC1",
                 Username = "user1",
-                Name = "Rose"
+                Name = "Rose",
             }));
 
         var result = await _repository.CreateAsync(plant);
@@ -70,7 +70,7 @@ public class PlantRepositoryGrpcTests
                 It.IsAny<GetPlantsByUsernameRequest>(), null, null, default))
             .Returns(GrpcMockHelpers.CreateAsyncUnaryCall(response));
 
-        var result = (await _repository.GetPlantsByUsernameAsync("user1", null)).ToList();
+        var result = (await _repository.GetPlantsByUsernameAsync("user1", null, null)).ToList();
 
         Assert.That(result.Count, Is.EqualTo(1));
     }
@@ -83,7 +83,7 @@ public class PlantRepositoryGrpcTests
             .Throws(new RpcException(new Status(StatusCode.NotFound, "not found")));
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _repository.GetPlantsByUsernameAsync("user1", null));
+            await _repository.GetPlantsByUsernameAsync("user1", null, null));
     }
     
     [Test]
@@ -97,7 +97,7 @@ public class PlantRepositoryGrpcTests
                 Name = "Rose"
             }));
 
-        var result = await _repository.GetPlantAsync("user1", "MAC1", null);
+        var result = await _repository.GetPlantAsync("user1", "MAC1", null, null);
 
         Assert.That(result.MAC, Is.EqualTo("MAC1"));
     }
@@ -110,7 +110,7 @@ public class PlantRepositoryGrpcTests
             .Throws(new RpcException(new Status(StatusCode.NotFound, "not found")));
 
         Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _repository.GetPlantAsync("user1", "MAC1", null));
+            await _repository.GetPlantAsync("user1", "MAC1", null, null));
     }
     
     [Test] 
@@ -157,7 +157,7 @@ public class PlantRepositoryGrpcTests
     [Test]
     public void UpdateAsync_NotFound_Throws()
     {
-        var plant = new Plant { MAC = "MAC1" };
+        var plant = new Plant { MAC = "MAC1", Username = "user1"};
 
         _grpcMock.Setup(x => x.UpdateAsync(
                 It.IsAny<UpdatePlantRequest>(), null, null, default))

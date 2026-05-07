@@ -4,36 +4,35 @@ namespace Entities.Plant;
 
 public class Plant
 {
-    //MAC address for the arduino network
+    
     public string MAC { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string Username { get; set; } = string.Empty;
+    public required string Username { get; set; }
 
-    public Temperature Temperature { get; set; } = new Temperature();
-    public AirHumidity AirHumidity { get; set; } = new AirHumidity();
-    public WaterLevel WaterLevel { get; set; } = new WaterLevel();
-    public WaterIntake WaterIntake { get; set; } = new WaterIntake();
-    public SoilHumidity SoilHumidity { get; set; } = new SoilHumidity();
-    public LightIntensity LightIntensity { get; set; } = new LightIntensity();
+    
+    public SensorData SensorData { get; set; } = new SensorData();
+    public List<SensorData> PreviousSensorData { get; set; } = [];
+
+    
+    public Watering Watering { get; set; } = new Watering();
+    public List<Watering> PreviousWaterings { get; set; } = [];
 
     private double _optimalTemperature;
     private double _optimalAirHumidity;
     private double _optimalSoilHumidity;
     private double _optimalLightIntensity;
-    private TimeSpan _optimalLightPeriod;
-    private TemperatureScale _temperatureScale = TemperatureScale.C;
+    private TemperatureScale _scale = TemperatureScale.C;
 
-    public TemperatureScale TemperatureScale
+    public TemperatureScale Scale
     {
-        get => _temperatureScale;
+        get => _scale;
         set
         {
-            if (_temperatureScale == value)
+            if (_scale == value)
                 return;
 
-            _optimalTemperature = TemperatureUtility.ConvertScale(_temperatureScale, value, _optimalTemperature);
-            Temperature.ConvertTemperature(value);
-            _temperatureScale = value;
+            _optimalTemperature = TemperatureUtility.ConvertScale(_scale, value, _optimalTemperature);
+            _scale = value;
         }
     }
 
@@ -47,21 +46,10 @@ public class Plant
     {
         get
         {
-            if (Temperature.Value is null || OptimalTemperature == 0)
+            if (SensorData.Temperature == 0 || OptimalTemperature == 0)
                 return null;
 
-            double current = Temperature.Value.Value;
-
-            if (Temperature.Scale != TemperatureScale)
-            {
-                current = TemperatureUtility.ConvertScale(
-                    Temperature.Scale,
-                    TemperatureScale,
-                    current
-                );
-            }
-
-            return PercentUtility.CalculateDeviationPercent(current, OptimalTemperature);
+            return PercentUtility.CalculateDeviationPercent(SensorData.Temperature, OptimalTemperature);
         }
     }
 
@@ -78,12 +66,9 @@ public class Plant
     }
 
     public int? AirHumidityDeviationPercent =>
-        AirHumidity.Value is null || OptimalAirHumidity == 0
+        SensorData.AirHumidity == 0 || OptimalAirHumidity == 0
             ? null
-            : PercentUtility.CalculateDeviationPercent(
-                AirHumidity.Value,
-                OptimalAirHumidity
-            );
+            : PercentUtility.CalculateDeviationPercent(SensorData.AirHumidity, OptimalAirHumidity);
 
     public double OptimalSoilHumidity
     {
@@ -98,12 +83,9 @@ public class Plant
     }
 
     public int? SoilHumidityDeviationPercent =>
-        SoilHumidity.Value is null || OptimalSoilHumidity == 0
+        SensorData.SoilHumidity == 0 || OptimalSoilHumidity == 0
             ? null
-            : PercentUtility.CalculateDeviationPercent(
-                SoilHumidity.Value,
-                OptimalSoilHumidity
-            );
+            : PercentUtility.CalculateDeviationPercent(SensorData.SoilHumidity, OptimalSoilHumidity);
 
     public double OptimalLightIntensity
     {
@@ -118,22 +100,7 @@ public class Plant
     }
 
     public int? LightIntensityDeviationPercent =>
-        LightIntensity.Value is null || OptimalLightIntensity == 0
+        SensorData.LightIntensity == 0 || OptimalLightIntensity == 0
             ? null
-            : PercentUtility.CalculateDeviationPercent(
-                LightIntensity.Value,
-                OptimalLightIntensity
-            );
-
-    public TimeSpan OptimalLightPeriod
-    {
-        get => _optimalLightPeriod;
-        set
-        {
-            if (value < TimeSpan.Zero)
-                throw new ArgumentOutOfRangeException(nameof(value), "Light period cannot be negative.");
-
-            _optimalLightPeriod = value;
-        }
-    }
+            : PercentUtility.CalculateDeviationPercent(SensorData.LightIntensity, OptimalLightIntensity);
 }
