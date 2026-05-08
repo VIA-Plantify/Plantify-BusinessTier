@@ -1,4 +1,4 @@
-name: Build and push image WebApi
+name: Build and push image IotApi
 
 on:
   push:
