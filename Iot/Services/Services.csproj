@@ -13,4 +13,8 @@
       <ProjectReference Include="..\..\Shared\ServiceContracts\ServiceContracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    </ItemGroup>
+
 </Project>
