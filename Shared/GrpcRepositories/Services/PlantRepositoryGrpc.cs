@@ -147,15 +147,23 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         if (IsInvalidResponse(response))
             throw new InvalidOperationException("Plant response is null or invalid.");
         List<SensorData> sensorDatas = new List<SensorData>();
-        foreach (var sensor in response.PreviousSensorReadings.PreviousSensorReadings)
+        if (response?.PreviousSensorReadings is not null)
         {
-            sensorDatas.Add(ParseSensorDataResponseToEntity(sensor));
+            foreach (var sensor in response.PreviousSensorReadings.PreviousSensorReadings)
+            {
+                sensorDatas.Add(ParseSensorDataResponseToEntity(sensor));
+            }
         }
         List<Watering> waterings = new List<Watering>();
-        foreach (var watering in response.PreviousWateringReadings.PreviousWateringReadings)
+        if (response?.PreviousWateringReadings is not null)
         {
-            waterings.Add(ParseWateringResponseToEntity(watering));
+           
+            foreach (var watering in response.PreviousWateringReadings.PreviousWateringReadings)
+            {
+                waterings.Add(ParseWateringResponseToEntity(watering));
+            }
         }
+        
         
         return new Plant
         {
