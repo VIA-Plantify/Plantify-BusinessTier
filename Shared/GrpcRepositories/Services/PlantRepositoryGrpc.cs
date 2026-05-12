@@ -3,7 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using RepositoryContracts;
 using Grpc.Core;
 
-namespace GrpcRepositories.Services;
+namespace GrpcRepositories.Services; 
 
 public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient client) : IPlantRepository
 {
