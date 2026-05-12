@@ -13,8 +13,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ISensorService, SensorService>();
 builder.Services.AddScoped<ISensorRepository, SensorRepositoryGrpc>();
 
-var grpcAddress = builder.Configuration["GrpcServer:Address"]
-                  ?? throw new InvalidOperationException("GrpcServer:Address is missing.");
+var grpcAddress = builder.Configuration["GrpcServer:Url"]
+                  ?? throw new InvalidOperationException("GrpcServer:Url is missing.");
 
 builder.Services.AddGrpcClient<SensorServiceProto.SensorServiceProtoClient>(options =>
 {
