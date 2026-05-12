@@ -12,7 +12,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
 {
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<Plant>> CreateAsync([FromBody] PlantDto dto)
+    public async Task<ActionResult<PlantDto>> CreateAsync([FromBody] PlantDto dto)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -56,7 +56,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
  
     [HttpGet("p/{plantMAC}")]
     [Authorize]
-    public async Task<ActionResult<Plant>> GetPlant([FromRoute] string? plantMAC, [FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
+    public async Task<ActionResult<PlantDto>> GetPlant([FromRoute] string? plantMAC, [FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
         if (string.IsNullOrEmpty(loggedInUsername))
@@ -73,7 +73,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
             var plant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, numberOfSensorReadings,
                 numberOfWateringReadings);
             CheckPlantDataIntegrity(plant);
-            return Ok(plant);
+            return Ok(Utils.PlantToDto(plant));
         }
         catch (ArgumentException ex)
         {
@@ -86,18 +86,23 @@ public class PlantController(IPlantService plantService) : ControllerBase
     }
  
     [HttpGet]
-    
-    public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants([FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<PlantDto>>> GetAllPlants([FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
     {
-        // var loggedInUsername = User.FindFirst("Username")?.Value;
-        // if (string.IsNullOrEmpty(loggedInUsername))
-        // {
-        //     return Unauthorized("User identity not found in token.");
-        // }
+         var loggedInUsername = User.FindFirst("Username")?.Value;
+         if (string.IsNullOrEmpty(loggedInUsername))
+         {
+            return Unauthorized("User identity not found in token.");
+         }
         try
         {
-            var plants = await plantService.GetPlantsByUsernameAsync("janedoe", numberOfSensorReadings, numberOfWateringReadings);
-            return Ok(plants);
+            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, numberOfSensorReadings, numberOfWateringReadings);
+            List<PlantDto> plantDtos = new List<PlantDto>();
+            foreach (var plant in plants)
+            {
+                plantDtos.Add(Utils.PlantToDto(plant));
+            }
+            return Ok(plantDtos);
         }
         catch (ArgumentException ex)
         {

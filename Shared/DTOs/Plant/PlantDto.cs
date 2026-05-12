@@ -9,26 +9,18 @@ public record PlantDto
     public required string Username { get; init; }
 
     // Current sensor data
-    public SensorData SensorData { get; init; } = new SensorData();
-    public List<SensorData> PreviousSensorData { get; init; } = [];
+    public SensorDataDto SensorData { get; init; } = new();
+    public List<SensorDataDto> PreviousSensorData { get; init; } = [];
 
     // Watering data
-    public Watering Watering { get; init; } = new Watering();
-    public List<Watering> PreviousWaterings { get; init; } = [];
+    public WateringDto Watering { get; init; } = new();
+    public List<WateringDto> PreviousWaterings { get; init; } = [];
 
     // Optimal values
     public required double OptimalTemperature { get; init; }
     public required double OptimalAirHumidity { get; init; }
     public required double OptimalSoilHumidity { get; init; }
     public required double OptimalLightIntensity { get; init; }
-    
 
-    // Temperature scale
     public TemperatureScale Scale { get; init; }
-
-    // Deviation percentages
-    public int? TemperatureDeviationPercent { get; init; }
-    public int? AirHumidityDeviationPercent { get; init; }
-    public int? SoilHumidityDeviationPercent { get; init; }
-    public int? LightIntensityDeviationPercent { get; init; }
 }
