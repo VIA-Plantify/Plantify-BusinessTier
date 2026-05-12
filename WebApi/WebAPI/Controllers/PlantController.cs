@@ -86,17 +86,17 @@ public class PlantController(IPlantService plantService) : ControllerBase
     }
  
     [HttpGet]
-    [Authorize]
+    
     public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants([FromQuery] int? numberOfSensorReadings, [FromQuery] int? numberOfWateringReadings)
     {
-        var loggedInUsername = User.FindFirst("Username")?.Value;
-        if (string.IsNullOrEmpty(loggedInUsername))
-        {
-            return Unauthorized("User identity not found in token.");
-        }
+        // var loggedInUsername = User.FindFirst("Username")?.Value;
+        // if (string.IsNullOrEmpty(loggedInUsername))
+        // {
+        //     return Unauthorized("User identity not found in token.");
+        // }
         try
         {
-            var plants = await plantService.GetPlantsByUsernameAsync(loggedInUsername, numberOfSensorReadings, numberOfWateringReadings);
+            var plants = await plantService.GetPlantsByUsernameAsync("janedoe", numberOfSensorReadings, numberOfWateringReadings);
             return Ok(plants);
         }
         catch (ArgumentException ex)

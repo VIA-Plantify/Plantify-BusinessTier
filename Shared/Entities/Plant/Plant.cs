@@ -65,11 +65,6 @@ public class Plant
         }
     }
 
-    public int? AirHumidityDeviationPercent =>
-        SensorData.AirHumidity == 0 || OptimalAirHumidity == 0
-            ? null
-            : PercentUtility.CalculateDeviationPercent(SensorData.AirHumidity, OptimalAirHumidity);
-
     public double OptimalSoilHumidity
     {
         get => _optimalSoilHumidity;
@@ -82,11 +77,6 @@ public class Plant
         }
     }
 
-    public int? SoilHumidityDeviationPercent =>
-        SensorData.SoilHumidity == 0 || OptimalSoilHumidity == 0
-            ? null
-            : PercentUtility.CalculateDeviationPercent(SensorData.SoilHumidity, OptimalSoilHumidity);
-
     public double OptimalLightIntensity
     {
         get => _optimalLightIntensity;
@@ -98,9 +88,4 @@ public class Plant
             _optimalLightIntensity = value;
         }
     }
-
-    public int? LightIntensityDeviationPercent =>
-        SensorData.LightIntensity == 0 || OptimalLightIntensity == 0
-            ? null
-            : PercentUtility.CalculateDeviationPercent(SensorData.LightIntensity, OptimalLightIntensity);
 }
