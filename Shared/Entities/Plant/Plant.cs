@@ -41,17 +41,7 @@ public class Plant
         get => _optimalTemperature;
         set => _optimalTemperature = value;
     }
-
-    public int? TemperatureDeviationPercent
-    {
-        get
-        {
-            if (SensorData.Temperature == 0 || OptimalTemperature == 0)
-                return null;
-
-            return PercentUtility.CalculateDeviationPercent(SensorData.Temperature, OptimalTemperature);
-        }
-    }
+    
 
     public double OptimalAirHumidity
     {
