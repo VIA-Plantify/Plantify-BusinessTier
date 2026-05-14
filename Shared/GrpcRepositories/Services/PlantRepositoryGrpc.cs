@@ -1,8 +1,9 @@
 using Entities.Plant;
+using Google.Protobuf.WellKnownTypes;
 using RepositoryContracts;
 using Grpc.Core;
 
-namespace GrpcRepositories.Services;
+namespace GrpcRepositories.Services; 
 
 public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient client) : IPlantRepository
 {
@@ -81,7 +82,8 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 NumberOfWateringReadings =  numberOfWateringReadings.Value
             });
 
-            return ParsePlantResponseToEntity(response);
+           return ParsePlantResponseToEntity(response);
+            
         }
         catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
         {
@@ -140,11 +142,29 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
     }
 
-    private Plant ParsePlantResponseToEntity(PlantResponse? response)
+    private static Plant ParsePlantResponseToEntity(PlantResponse? response)
     {
         if (IsInvalidResponse(response))
             throw new InvalidOperationException("Plant response is null or invalid.");
-
+        List<SensorData> sensorDatas = new List<SensorData>();
+        if (response?.PreviousSensorReadings is not null)
+        {
+            foreach (var sensor in response.PreviousSensorReadings.PreviousSensorReadings)
+            {
+                sensorDatas.Add(ParseSensorDataResponseToEntity(sensor));
+            }
+        }
+        List<Watering> waterings = new List<Watering>();
+        if (response?.PreviousWateringReadings is not null)
+        {
+           
+            foreach (var watering in response.PreviousWateringReadings.PreviousWateringReadings)
+            {
+                waterings.Add(ParseWateringResponseToEntity(watering));
+            }
+        }
+        
+        
         return new Plant
         {
             MAC = response.PlantMAC,
@@ -156,25 +176,45 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
             OptimalLightIntensity = response.OptimalLightIntensity,
             Scale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
 
-            SensorData = response.SensorData == null ? new SensorData() : new SensorData
-            {
-                Temperature = response.SensorData.Temperature,
-                AirHumidity = response.SensorData.AirHumidity,
-                SoilHumidity = response.SensorData.SoilHumidity,
-                LightIntensity = response.SensorData.LightIntensity,
-            },
+            SensorData = ParseSensorDataResponseToEntity(response.SensorData),
 
-            Watering = response.Watering == null ? new Watering() : new Watering
-            {
-                WaterLevel = response.Watering.WaterLevel,
-                PumpTimeInSeconds = response.Watering.PumpTimeInSeconds,
-                LastWaterTime = response.Watering.LastWaterTime?.ToDateTime() ?? default,
-                PredictedFutureWaterTime = response.Watering.PredictedFutureWaterTime?.ToDateTime() ?? default,
-            }
+            Watering = ParseWateringResponseToEntity(response.Watering),
+            PreviousSensorData = sensorDatas,
+            PreviousWaterings = waterings
+        };
+    }
+    private static SensorData ParseSensorDataResponseToEntity(SensorResponse? response)
+    {
+        if (response is null)
+        {
+            return null;
+        }
+
+        return new SensorData
+        {
+            AirHumidity = response.AirHumidity,
+            SoilHumidity = response.SoilHumidity,
+            LightIntensity = response.LightIntensity,
+            Temperature = response.Temperature,
+        };
+    }
+    private static Watering ParseWateringResponseToEntity(WateringResponse? response)
+    {
+        if (response is null)
+        {
+            return null;
+        }
+
+        return new Watering
+        {
+            PumpTimeInSeconds = response.PumpTimeInSeconds,
+            WaterLevel = response.WaterLevel,
+            LastWaterTime = response.LastWaterTime?.ToDateTime() ?? default,
+            PredictedFutureWaterTime = response.LastWaterTime?.ToDateTime() ?? DateTime.Now.AddDays(2),
         };
     }
 
-    private bool IsInvalidResponse(PlantResponse? response)
+    private static bool IsInvalidResponse(PlantResponse? response)
     {
         return response is null || string.IsNullOrWhiteSpace(response.PlantMAC);
     }

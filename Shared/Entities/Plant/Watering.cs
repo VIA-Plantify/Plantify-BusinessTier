@@ -38,13 +38,7 @@ public class Watering
     public DateTime? PredictedFutureWaterTime
     {
         get => predictedFutureWaterTime;
-        set
-        {
-            if (value < DateTime.Now)
-                throw new ArgumentException("Predicted future water time must be in the future");
-
-            predictedFutureWaterTime = value;
-        }
+        set => predictedFutureWaterTime = value;
     }
 
     public double? WaterLevel

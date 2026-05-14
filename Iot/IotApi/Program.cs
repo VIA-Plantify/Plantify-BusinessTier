@@ -7,6 +7,10 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSingleton<MqttSensorService>();
 
+var grpcAddress = builder.Configuration["GrpcServer:Url"]
+                  ?? throw new InvalidOperationException(
+                      "GrpcServer:Url is missing.");
+
 var app = builder.Build();
 
 Console.WriteLine("Starting MQTT service...");

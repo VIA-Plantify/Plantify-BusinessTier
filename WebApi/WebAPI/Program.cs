@@ -58,8 +58,8 @@ builder.Host.UseSerilog((ctx, services, lc) => lc
 );
 
 // Configure gRPC clients
-var grpcAddress = builder.Configuration["GrpcServer:Address"]
-                  ?? throw new InvalidOperationException("GrpcServer:Address is missing.");
+var grpcAddress = builder.Configuration["GrpcServer:Url"]
+                  ?? throw new InvalidOperationException("GrpcServer:Url is missing.");
 
 builder.Services.AddGrpcClient<AuthServiceProto.AuthServiceProtoClient>(options =>
 {
