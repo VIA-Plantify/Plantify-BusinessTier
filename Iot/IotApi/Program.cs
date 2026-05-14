@@ -1,46 +1,28 @@
-using GrpcRepositories;
-using ServiceContracts;
-using RepositoryContracts;
-using GrpcRepositories.Services;
-using Services;
+using Plantify.BusinessTier.Services;
 
-//using Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ISensorService, SensorService>();
-builder.Services.AddScoped<ISensorRepository, SensorRepositoryGrpc>();
+builder.Services.AddSingleton<MqttSensorService>();
 
 var grpcAddress = builder.Configuration["GrpcServer:Url"]
-                  ?? throw new InvalidOperationException("GrpcServer:Url is missing.");
-
-builder.Services.AddGrpcClient<SensorServiceProto.SensorServiceProtoClient>(options =>
-{
-    options.Address = new Uri(grpcAddress);
-});
-
-var allowedOrigins = builder.Configuration
-    .GetSection("AllowedOrigins")
-    .Get<string[]>() ?? [];
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Arduino", policy =>
-    {
-        policy
-            .WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
+                  ?? throw new InvalidOperationException(
+                      "GrpcServer:Url is missing.");
 
 var app = builder.Build();
 
-app.UseRouting();
+Console.WriteLine("Starting MQTT service...");
 
-app.UseCors("Arduino");
+var mqttService =
+    app.Services.GetRequiredService<MqttSensorService>();
+
+await mqttService.ConnectAsync();
+
+Console.WriteLine("MQTT service started.");
+
+app.UseRouting();
 
 app.UseAuthorization();
 

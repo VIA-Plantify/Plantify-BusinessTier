@@ -13,4 +13,10 @@
       <ProjectReference Include="..\..\Shared\ServiceContracts\ServiceContracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Azure.Data.Tables" Version="12.11.0" />
+      <PackageReference Include="Azure.Identity" Version="1.21.0" />
+      <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    </ItemGroup>
+
 </Project>
