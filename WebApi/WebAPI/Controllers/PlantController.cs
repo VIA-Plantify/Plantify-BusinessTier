@@ -191,6 +191,41 @@ public class PlantController(IPlantService plantService) : ControllerBase
             return StatusCode(500, "An internal error occurred");
         }
     }
+
+    [HttpPost("temperature/{plantMac}")]
+    [Authorize]
+    public async Task<ActionResult> ConvertTemperature([FromRoute] string plantMAC, [FromQuery] TemperatureScale scale)
+    {
+        var loggedInUsername = User.FindFirst("Username")?.Value;
+ 
+        if (string.IsNullOrEmpty(loggedInUsername))
+        {
+            return Unauthorized("User identity not found in token.");
+        }
+        try
+        {
+            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null,null);
+            if (existingPlant == null)
+            {
+                return NotFound("Plant not found.");
+            }
+            await plantService.ConvertTempScale(username: loggedInUsername, plantMac:plantMAC, temperatureScale: scale);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+    
  
     private void CheckPlantDataIntegrity(Plant? plant)
     {
