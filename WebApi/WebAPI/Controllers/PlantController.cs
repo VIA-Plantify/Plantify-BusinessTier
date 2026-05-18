@@ -143,6 +143,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 MAC = existingPlant.MAC,
                 Name = dto.Name,
                 Username = dto.Username,
+                Scale = dto.Scale,
                 OptimalTemperature = dto.OptimalTemperature,
                 OptimalAirHumidity = dto.OptimalAirHumidity,
                 OptimalSoilHumidity = dto.OptimalSoilHumidity,
@@ -213,7 +214,8 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 return NotFound("Plant not found.");
             }
             Console.WriteLine($"TRYING TO CONVERT {scale}");
-            await plantService.ConvertTempScale(username: loggedInUsername, plantMac:plantMAC, temperatureScale: scale);
+            existingPlant.Scale = scale; 
+            await plantService.UpdateAsync(existingPlant);
             return NoContent();
         }
         catch (ArgumentException ex)
