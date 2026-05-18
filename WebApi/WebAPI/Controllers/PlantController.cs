@@ -213,7 +213,8 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 return NotFound("Plant not found.");
             }
             Console.WriteLine($"TRYING TO CONVERT {scale}");
-            await plantService.ConvertTempScale(username: loggedInUsername, plantMac:plantMAC, temperatureScale: scale);
+            existingPlant.Scale = scale; 
+            await plantService.UpdateAsync(existingPlant);
             return NoContent();
         }
         catch (ArgumentException ex)
