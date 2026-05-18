@@ -105,6 +105,7 @@ public class PlantService : IPlantService
             throw new KeyNotFoundException($"Plant with MAC address {plantMac} not found for user {username}");
         }
         plantToUpdate.Scale = temperatureScale; 
+        Console.WriteLine($"TRYING TO CONVERT {temperatureScale}");
         try
         {
             await _repository.UpdateAsync(plantToUpdate);

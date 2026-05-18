@@ -2,6 +2,7 @@ using DTOs.Plant;
 using Entities.Plant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using ServiceContracts;
 
 namespace WebAPI.Controllers;
@@ -199,7 +200,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
     public async Task<ActionResult> ConvertTemperature([FromRoute] string plantMAC, [FromQuery] TemperatureScale scale)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
- 
+        Console.WriteLine(" I WAS HIT");
         if (string.IsNullOrEmpty(loggedInUsername))
         {
             return Unauthorized("User identity not found in token.");
@@ -211,6 +212,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 return NotFound("Plant not found.");
             }
+            Console.WriteLine($"TRYING TO CONVERT {scale}");
             await plantService.ConvertTempScale(username: loggedInUsername, plantMac:plantMAC, temperatureScale: scale);
             return NoContent();
         }
