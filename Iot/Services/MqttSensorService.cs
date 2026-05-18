@@ -118,4 +118,29 @@ public class MqttSensorService
 
         Console.WriteLine("Saved to Azure Table Storage.");
     }
+    
+    // Command for watering
+    public async Task SendWaterCommandAsync(
+        string macAddress,
+        int seconds)
+    {
+        await ConnectAsync();
+
+        var topic = $"arduino/{macAddress}/commands";
+
+        var payload = $"pump_on_{seconds}";
+
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithPayload(payload)
+            .Build();
+
+        Console.WriteLine("=== SENDING WATER COMMAND ===");
+        Console.WriteLine($"TOPIC: {topic}");
+        Console.WriteLine($"PAYLOAD: {payload}");
+
+        await _client.PublishAsync(message);
+
+        Console.WriteLine("Water command sent.");
+    }
 }
