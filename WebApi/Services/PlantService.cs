@@ -75,15 +75,31 @@ public class PlantService : IPlantService
         {
             throw new KeyNotFoundException($"Plant with MAC address {plant.MAC} not found for user {plant.Username}");
         }
-        plantToUpdate.Name = plant.Name;
-        if (plantToUpdate.Scale == TemperatureScale.C)
+
+        if (plantToUpdate.Scale != plant.Scale)
         {
-            plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
+            switch (plant.Scale)
+            {
+                case TemperatureScale.C:
+                    plantToUpdate.Scale = TemperatureScale.C;
+                    break;
+
+                case TemperatureScale.F:
+                    plantToUpdate.Scale = TemperatureScale.F;
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Scale for plant: {plant.Scale} is invalid");
+            }
         }
+        plantToUpdate.Name = plant.Name;
         plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;
         plantToUpdate.OptimalLightIntensity = plant.OptimalLightIntensity;
-        
+        if (plant.Scale != TemperatureScale.C)
+        {
+            plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
+        }
         try
         {
             await _repository.UpdateAsync(plantToUpdate);
@@ -91,28 +107,6 @@ public class PlantService : IPlantService
         catch (Exception e)
         {
             throw new InvalidOperationException($"Update failed: {e.Message}");
-        }
-    }
-
-    public async Task ConvertTempScale(TemperatureScale temperatureScale, string plantMac, string username)
-    {
-        await VerifyUserExistsAsync(username);
-
-        var plantToUpdate = await _repository.GetPlantAsync(username, plantMac, null, null);
-
-        if (plantToUpdate == null)
-        {
-            throw new KeyNotFoundException($"Plant with MAC address {plantMac} not found for user {username}");
-        }
-        plantToUpdate.Scale = temperatureScale; 
-        Console.WriteLine($"TRYING TO CONVERT {temperatureScale}");
-        try
-        {
-            await _repository.UpdateAsync(plantToUpdate);
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"Temperature scale update failed: {e.Message}");
         }
     }
 

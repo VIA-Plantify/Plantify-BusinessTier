@@ -5,5 +5,4 @@ namespace ServiceContracts;
 
 public interface IPlantService : IPlantRepository
 {
-    Task ConvertTempScale(TemperatureScale temperatureScale, string plantMac, string username);
 }
