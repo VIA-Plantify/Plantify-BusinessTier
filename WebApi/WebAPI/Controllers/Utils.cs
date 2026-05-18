@@ -27,7 +27,8 @@ public static class Utils
 
             SensorData = ToSensorDto(plant.SensorData),
             Watering = ToWateringDto(plant.Watering),
-            
+            AddedDate = plant.AddedDate,
+            ShouldPredictOptimal = plant.ShouldPredictOptimal,
             
 
             PreviousSensorData = plant.PreviousSensorData?
@@ -37,6 +38,7 @@ public static class Utils
             PreviousWaterings = plant.PreviousWaterings?
                 .Select(ToWateringDto)
                 .ToList() ?? new List<WateringDto>()
+            
         };
     }
 
