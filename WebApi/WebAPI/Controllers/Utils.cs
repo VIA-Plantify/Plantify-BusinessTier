@@ -9,7 +9,10 @@ public static class Utils
     {
         if (plant == null)
             throw new ArgumentNullException(nameof(plant));
-
+        if (plant.Scale == TemperatureScale.F)
+        {
+            plant = ConvertTemperatureToF(plant);
+        }
         return new PlantDto
         {
             MAC = plant.MAC,
@@ -24,7 +27,8 @@ public static class Utils
 
             SensorData = ToSensorDto(plant.SensorData),
             Watering = ToWateringDto(plant.Watering),
-            
+            AddedDate = plant.AddedDate,
+            ShouldPredictOptimal = plant.ShouldPredictOptimal,
             
 
             PreviousSensorData = plant.PreviousSensorData?
@@ -34,6 +38,7 @@ public static class Utils
             PreviousWaterings = plant.PreviousWaterings?
                 .Select(ToWateringDto)
                 .ToList() ?? new List<WateringDto>()
+            
         };
     }
 
@@ -62,5 +67,27 @@ public static class Utils
             WaterLevel = watering.WaterLevel,
             LastWaterTime = watering.LastWaterTime,
         };
+    }
+
+    public static Plant ConvertTemperatureToF(Plant plant)
+    {
+        if (plant == null)
+            throw new ArgumentNullException(nameof(plant));
+        if (plant.Scale == TemperatureScale.F)
+        {
+            plant.OptimalTemperature = FromCToF(plant.OptimalTemperature);
+            plant.SensorData.Temperature = FromCToF(plant.SensorData.Temperature);
+            foreach (var sensor in plant.PreviousSensorData)
+            {
+                sensor.Temperature =  FromCToF(sensor.Temperature);
+            }
+        }
+
+        return plant;
+    }
+
+    private static double FromCToF(double c)
+    {
+        return c * 1.8 + 32;
     }
 }
