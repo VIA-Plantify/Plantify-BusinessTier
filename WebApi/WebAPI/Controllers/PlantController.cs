@@ -30,6 +30,8 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 OptimalAirHumidity = dto.OptimalAirHumidity,
                 OptimalSoilHumidity = dto.OptimalSoilHumidity,
                 OptimalLightIntensity = dto.OptimalLightIntensity,
+                AddedDate = dto.AddedDate,
+                ShouldPredictOptimal = dto.ShouldPredictOptimal,
             };
             var created = await plantService.CreateAsync(plant);
             CheckPlantDataIntegrity(created);

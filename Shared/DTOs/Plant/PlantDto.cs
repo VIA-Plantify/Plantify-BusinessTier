@@ -23,4 +23,7 @@ public record PlantDto
     public required double OptimalLightIntensity { get; init; }
 
     public TemperatureScale Scale { get; init; }
+    public DateTime AddedDate { get; init; }
+    public bool ShouldPredictOptimal { get; init; }
+
 }
