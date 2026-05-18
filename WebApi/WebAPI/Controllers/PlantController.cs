@@ -225,7 +225,6 @@ public class PlantController(IPlantService plantService) : ControllerBase
             return NotFound(ex.Message);
         }
     }
-    
  
     private void CheckPlantDataIntegrity(Plant? plant)
     {
