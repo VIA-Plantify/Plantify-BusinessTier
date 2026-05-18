@@ -76,22 +76,16 @@ public class PlantService : IPlantService
             throw new KeyNotFoundException($"Plant with MAC address {plant.MAC} not found for user {plant.Username}");
         }
 
-        if (plantToUpdate.Scale != plant.Scale)
+        if (plant.Scale != plantToUpdate.Scale)
         {
-            switch (plant.Scale)
+            if (plant.Scale != TemperatureScale.C && plant.Scale != TemperatureScale.F)
             {
-                case TemperatureScale.C:
-                    plantToUpdate.Scale = TemperatureScale.C;
-                    break;
-
-                case TemperatureScale.F:
-                    plantToUpdate.Scale = TemperatureScale.F;
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Scale for plant: {plant.Scale} is invalid");
+                throw new InvalidOperationException($"Scale for plant: {plant.Scale} is invalid");
             }
+
+            plantToUpdate.Scale = plant.Scale;
         }
+        
         plantToUpdate.Name = plant.Name;
         plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;

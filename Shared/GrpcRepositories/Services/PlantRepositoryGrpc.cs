@@ -127,6 +127,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                 Username = plant.Username,
                 PlantMAC = plant.MAC,
                 Name = plant.Name,
+                
                 OptimalTemperature = plant.OptimalTemperature,
                 OptimalAirHumidity = plant.OptimalAirHumidity,
                 OptimalSoilHumidity = plant.OptimalSoilHumidity,

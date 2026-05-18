@@ -142,7 +142,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 MAC = existingPlant.MAC,
                 Name = dto.Name,
-                Username = dto.Username,
+                Username = loggedInUsername,
                 Scale = dto.Scale,
                 OptimalTemperature = dto.OptimalTemperature,
                 OptimalAirHumidity = dto.OptimalAirHumidity,
@@ -197,11 +197,9 @@ public class PlantController(IPlantService plantService) : ControllerBase
     }
 
     [HttpPost("temperature/{plantMac}")]
-    [Authorize]
     public async Task<ActionResult> ConvertTemperature([FromRoute] string plantMAC, [FromQuery] TemperatureScale scale)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
-        Console.WriteLine(" I WAS HIT");
         if (string.IsNullOrEmpty(loggedInUsername))
         {
             return Unauthorized("User identity not found in token.");
@@ -213,8 +211,10 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 return NotFound("Plant not found.");
             }
-            Console.WriteLine($"TRYING TO CONVERT {scale}");
+            
             existingPlant.Scale = scale; 
+            
+            
             await plantService.UpdateAsync(existingPlant);
             return NoContent();
         }
