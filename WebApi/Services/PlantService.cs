@@ -76,11 +76,14 @@ public class PlantService : IPlantService
             throw new KeyNotFoundException($"Plant with MAC address {plant.MAC} not found for user {plant.Username}");
         }
         plantToUpdate.Name = plant.Name;
-        plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
+        if (plantToUpdate.Scale == TemperatureScale.C)
+        {
+            plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
+        }
         plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;
         plantToUpdate.OptimalLightIntensity = plant.OptimalLightIntensity;
-
+        
         try
         {
             await _repository.UpdateAsync(plantToUpdate);
@@ -91,7 +94,28 @@ public class PlantService : IPlantService
         }
     }
 
-    
+    public async Task ConvertTempScale(TemperatureScale temperatureScale, string plantMac, string username)
+    {
+        await VerifyUserExistsAsync(username);
+
+        var plantToUpdate = await _repository.GetPlantAsync(username, plantMac, null, null);
+
+        if (plantToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Plant with MAC address {plantMac} not found for user {username}");
+        }
+        plantToUpdate.Scale = temperatureScale; 
+        try
+        {
+            await _repository.UpdateAsync(plantToUpdate);
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException($"Temperature scale update failed: {e.Message}");
+        }
+    }
+
+
     public async Task DeleteAsync(string username, string plantMAC)
     {
         await VerifyUserExistsAsync(username);
@@ -116,4 +140,5 @@ public class PlantService : IPlantService
             throw new KeyNotFoundException($"User '{username}' does not exist");
         }
     }
+    
 }
