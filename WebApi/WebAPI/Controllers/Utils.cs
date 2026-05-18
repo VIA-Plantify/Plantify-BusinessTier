@@ -88,6 +88,6 @@ public static class Utils
 
     private static double FromCToF(double c)
     {
-        return c * 18 + 32;
+        return c * 1.8 + 32;
     }
 }
