@@ -4,6 +4,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
 using MQTTnet.Client;
+using ServiceContracts;
 
 namespace Plantify.BusinessTier.Services;
 
@@ -11,6 +12,8 @@ public class MqttSensorService
 {
     private readonly IMqttClient _client;
     private readonly TableClient _tableClient;
+    private readonly ISensorService _sensorService;
+    private readonly IWateringService _wateringService;
 
     public MqttSensorService(IConfiguration configuration)
     {
@@ -113,7 +116,7 @@ public class MqttSensorService
             ["Json"] = jsonWithTimestamp,
             ["Timestamp"] = timestamp
         };
-
+        
         await _tableClient.AddEntityAsync(entity);
 
         Console.WriteLine("Saved to Azure Table Storage.");
