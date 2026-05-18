@@ -196,7 +196,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
     }
 
-    [HttpPost("temperature/{plantMac}")]
+    [HttpPut("temperature/{plantMac}")]
     public async Task<ActionResult> ConvertTemperature([FromRoute] string plantMAC, [FromQuery] TemperatureScale scale)
     {
         var loggedInUsername = User.FindFirst("Username")?.Value;
@@ -206,16 +206,7 @@ public class PlantController(IPlantService plantService) : ControllerBase
         }
         try
         {
-            var existingPlant = await plantService.GetPlantAsync(loggedInUsername, plantMAC, null,null);
-            if (existingPlant == null)
-            {
-                return NotFound("Plant not found.");
-            }
-            
-            existingPlant.Scale = scale; 
-            
-            
-            await plantService.UpdateAsync(existingPlant);
+            await plantService.ConvertTemperatureAsync(plantMAC, loggedInUsername, scale);
             return NoContent();
         }
         catch (ArgumentException ex)

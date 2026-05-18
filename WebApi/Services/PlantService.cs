@@ -90,10 +90,12 @@ public class PlantService : IPlantService
         plantToUpdate.OptimalAirHumidity = plant.OptimalAirHumidity;
         plantToUpdate.OptimalSoilHumidity = plant.OptimalSoilHumidity;
         plantToUpdate.OptimalLightIntensity = plant.OptimalLightIntensity;
-        if (plant.Scale != TemperatureScale.C)
+        if (plant.Scale == TemperatureScale.F)
         {
-            plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
+            throw new InvalidOperationException("Temperature updates must be in Celsius. Convert the plant scale to Celsius before updating.");
         }
+
+        plantToUpdate.OptimalTemperature = plant.OptimalTemperature;
         try
         {
             await _repository.UpdateAsync(plantToUpdate);
@@ -101,6 +103,38 @@ public class PlantService : IPlantService
         catch (Exception e)
         {
             throw new InvalidOperationException($"Update failed: {e.Message}");
+        }
+    }
+
+    public async Task ConvertTemperatureAsync(string plantMAC, string username, TemperatureScale scale)
+    {
+        await VerifyUserExistsAsync(username);
+
+        var plant = await _repository.GetPlantAsync(username, plantMAC, null, null);
+        if (plant == null)
+        {
+            throw new KeyNotFoundException($"Plant with MAC address {plantMAC} not found for user {username}");
+        }
+
+        if (scale != TemperatureScale.C && scale != TemperatureScale.F)
+        {
+            throw new InvalidOperationException($"Scale '{scale}' is invalid.");
+        }
+
+        if (plant.Scale == scale)
+        {
+            return;
+        }
+
+        plant.Scale = scale;
+
+        try
+        {
+            await _repository.UpdateAsync(plant);
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException($"Failed to update temperature scale: {e.Message}");
         }
     }
 
