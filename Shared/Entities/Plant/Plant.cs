@@ -78,4 +78,6 @@ public class Plant
             _optimalLightIntensity = value;
         }
     }
+    public DateTime AddedDate = DateTime.Now;
+    public bool ShouldPredictOptimal = false;
 }

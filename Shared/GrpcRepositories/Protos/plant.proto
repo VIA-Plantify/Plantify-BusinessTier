@@ -59,8 +59,8 @@ message UpdatePlantRequest {
   double optimalSoilHumidity = 6;
   double optimalLightIntensity = 7;
   int64 optimalLightPeriodSeconds = 8;
-
   TemperatureScale temperatureScale = 9;
+  bool ShouldPredictOptimal = 10;
 }
 
 // Responses

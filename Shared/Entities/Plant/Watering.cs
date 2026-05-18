@@ -4,7 +4,6 @@ public class Watering
 {
     private int? pumpTimeInSeconds;
     private DateTime? lastWaterTime;
-    private DateTime? predictedFutureWaterTime;
     private double? waterLevel;
 
     public int? PumpTimeInSeconds
@@ -33,12 +32,6 @@ public class Watering
 
             lastWaterTime = value;
         }
-    }
-
-    public DateTime? PredictedFutureWaterTime
-    {
-        get => predictedFutureWaterTime;
-        set => predictedFutureWaterTime = value;
     }
 
     public double? WaterLevel
