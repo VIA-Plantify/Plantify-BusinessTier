@@ -9,14 +9,14 @@ message WateringResponse{
   string plantMAC = 1;
   int32 Id = 2;
   google.protobuf.Timestamp LastWaterTime = 3;
-  int32 PumpTimeInSeconds = 5;
-  double WaterLevel = 6;
+  int32 PumpTimeInSeconds = 4;
+  double WaterLevel = 5;
 }
 message CreateWateringRequest{
   string plantMAC = 1;
   google.protobuf.Timestamp LastWaterTime = 2;
-  int32 PumpTimeInSeconds = 4;
-  double WaterLevel = 5;
+  int32 PumpTimeInSeconds = 3;
+  double WaterLevel = 4;
 }
 message GetLatestWateringDataRequest{
   string plantMAC = 1;

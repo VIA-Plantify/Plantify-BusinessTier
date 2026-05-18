@@ -24,6 +24,8 @@ public static class Utils
 
             SensorData = ToSensorDto(plant.SensorData),
             Watering = ToWateringDto(plant.Watering),
+            
+            
 
             PreviousSensorData = plant.PreviousSensorData?
                 .Select(ToSensorDto)
@@ -59,7 +61,6 @@ public static class Utils
             PumpTimeInSeconds = watering.PumpTimeInSeconds,
             WaterLevel = watering.WaterLevel,
             LastWaterTime = watering.LastWaterTime,
-            PredictedFutureWaterTime = watering.PredictedFutureWaterTime
         };
     }
 }
