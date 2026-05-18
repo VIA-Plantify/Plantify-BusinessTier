@@ -4,6 +4,6 @@ namespace RepositoryContracts;
 
 public interface IWateringRepository
 {
-    Task Create(Watering watering);
+    Task Create(string plantMac, Watering watering);
     Task<Watering?> Get(string plantMac );
 }
