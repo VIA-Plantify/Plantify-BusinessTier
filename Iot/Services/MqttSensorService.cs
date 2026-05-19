@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Azure.Data.Tables;
+using Entities.Plant;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
 using MQTTnet.Client;
@@ -15,7 +16,7 @@ public class MqttSensorService
     private readonly ISensorService _sensorService;
     private readonly IWateringService _wateringService;
 
-    public MqttSensorService(IConfiguration configuration)
+    public MqttSensorService(IConfiguration configuration, ISensorService sensorService, IWateringService wateringService)
     {
         Console.WriteLine("=== MQTT SERVICE STARTING ===");
 
@@ -33,6 +34,10 @@ public class MqttSensorService
         _tableClient.CreateIfNotExists();
 
         Console.WriteLine("Azure Table Storage ready.");
+        
+        //
+        _sensorService = sensorService;
+        _wateringService = wateringService;
     }
 
     public async Task ConnectAsync()
@@ -146,4 +151,42 @@ public class MqttSensorService
 
         Console.WriteLine("Water command sent.");
     }
+    private async Task HandleMqttMessageToDatabase(MqttApplicationMessageReceivedEventArgs e)
+    {
+        var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
+            
+            if (!doc.RootElement.TryGetProperty("data", out var data))
+            {
+                Console.WriteLine("Payload missing 'data' field — skipping.");
+                return;
+            }
+
+            var sensorData = new SensorData
+            {
+                PlantMAC       = data.TryGetProperty("mac", out var mac) ? mac.GetString() ?? "unknown" : "unknown",
+                Timestamp      = DateTime.UtcNow,
+                Temperature    = data.TryGetProperty("temp",  out var temp)  ? temp.GetDouble()  : 0,
+                AirHumidity    = data.TryGetProperty("hum",   out var hum)   ? hum.GetDouble()   : 0,
+                SoilHumidity   = data.TryGetProperty("soil",  out var soil)  ? soil.GetDouble()  : 0,
+                LightIntensity = data.TryGetProperty("light", out var light) ? light.GetDouble() : 0,
+            };
+
+            await _sensorService.CreateSensorData(sensorData);
+            Console.WriteLine($"Saved | mac={sensorData.PlantMAC} temp={sensorData.Temperature} " +
+                              $"airHum={sensorData.AirHumidity} soilHum={sensorData.SoilHumidity} " +
+                              $"light={sensorData.LightIntensity}");
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"Failed to parse payload: {ex.Message} | raw: {payload}");
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            Console.WriteLine($"Sensor value out of range: {ex.Message}");
+        }
+    }
+
 }
