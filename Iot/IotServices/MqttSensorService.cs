@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using Azure.Data.Tables;
 using Entities.Plant;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
 using ServiceContracts;
@@ -12,41 +12,29 @@ namespace IotServices;
 public class MqttSensorService
 {
     private readonly IMqttClient _client;
-    private readonly TableClient _tableClient;
-    private readonly ISensorService _sensorService;
-    private readonly IWateringService _wateringService;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<MqttSensorService> _logger;
 
-    public MqttSensorService(IConfiguration configuration, ISensorService sensorService, IWateringService wateringService)
+    public MqttSensorService(ILogger<MqttSensorService> logger, IServiceProvider serviceProvider)
     {
-        Console.WriteLine("=== MQTT SERVICE STARTING ===");
+        _logger = logger;
+        _logger.LogInformation("=== MQTT SERVICE STARTING ===");
 
         var factory = new MqttFactory();
         _client = factory.CreateMqttClient();
 
-        _client.ApplicationMessageReceivedAsync += HandleMqttMessage;
-
-        var connectionString =
-            configuration["AzureTableStorage:ConnectionString"]
-            ?? throw new InvalidOperationException(
-                "AzureTableStorage:ConnectionString is missing.");
-
-        _tableClient = new TableClient(connectionString, "ArduinoMessages");
-        _tableClient.CreateIfNotExists();
-
-        Console.WriteLine("Azure Table Storage ready.");
+        _client.ApplicationMessageReceivedAsync += HandleMqttMessageToDatabase;
+        _serviceProvider = serviceProvider;
         
-        //
-        _sensorService = sensorService;
-        _wateringService = wateringService;
     }
 
     public async Task ConnectAsync()
-    {
-        Console.WriteLine("=== CONNECTING TO MQTT BROKER ===");
+    { 
+        _logger.LogInformation("=== CONNECTING TO MQTT BROKER ===");
 
         if (_client.IsConnected)
         {
-            Console.WriteLine("Already connected.");
+            _logger.LogInformation("Already connected.");
             return;
         }
 
@@ -58,74 +46,74 @@ public class MqttSensorService
 
         await _client.ConnectAsync(options);
 
-        Console.WriteLine("CONNECTED SUCCESSFULLY");
+        _logger.LogInformation("CONNECTED SUCCESSFULLY");
 
         await _client.SubscribeAsync("arduino/+/sensors");
 
-        Console.WriteLine("SUBSCRIBED: arduino/+/sensors");
+        _logger.LogInformation("SUBSCRIBED: arduino/+/sensors");
     }
 
-    private async Task HandleMqttMessage(
-        MqttApplicationMessageReceivedEventArgs e)
-    {
-        var topic = e.ApplicationMessage.Topic;
-
-        var payload = Encoding.UTF8.GetString(
-            e.ApplicationMessage.PayloadSegment);
-
-        var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
-
-        Console.WriteLine("=== MQTT MESSAGE RECEIVED ===");
-        Console.WriteLine($"TIMESTAMP: {timestamp}");
-        Console.WriteLine($"TOPIC: {topic}");
-        Console.WriteLine($"PAYLOAD: {payload}");
-
-        string jsonWithTimestamp;
-
-        try
-        {
-            using var jsonDocument = JsonDocument.Parse(payload);
-
-            jsonWithTimestamp = JsonSerializer.Serialize(
-                new
-                {
-                    timestamp,
-                    topic,
-                    data = jsonDocument.RootElement
-                },
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
-        }
-        catch
-        {
-            jsonWithTimestamp = JsonSerializer.Serialize(
-                new
-                {
-                    timestamp,
-                    topic,
-                    rawPayload = payload
-                },
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
-        }
-
-        var entity = new TableEntity(
-            partitionKey: "arduino",
-            rowKey: Guid.NewGuid().ToString())
-        {
-            ["Topic"] = topic,
-            ["Json"] = jsonWithTimestamp,
-            ["Timestamp"] = timestamp
-        };
-        
-        await _tableClient.AddEntityAsync(entity);
-
-        Console.WriteLine("Saved to Azure Table Storage.");
-    }
+    // private async Task HandleMqttMessage(
+    //     MqttApplicationMessageReceivedEventArgs e)
+    // {
+    //     var topic = e.ApplicationMessage.Topic;
+    //
+    //     var payload = Encoding.UTF8.GetString(
+    //         e.ApplicationMessage.PayloadSegment);
+    //
+    //     var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+    //
+    //     _logger.LogInformation("=== MQTT MESSAGE RECEIVED ===");
+    //     _logger.LogInformation($"TIMESTAMP: {timestamp}");
+    //     _logger.LogInformation($"TOPIC: {topic}");
+    //     _logger.LogInformation($"PAYLOAD: {payload}");
+    //
+    //     string jsonWithTimestamp;
+    //
+    //     try
+    //     {
+    //         using var jsonDocument = JsonDocument.Parse(payload);
+    //
+    //         jsonWithTimestamp = JsonSerializer.Serialize(
+    //             new
+    //             {
+    //                 timestamp,
+    //                 topic,
+    //                 data = jsonDocument.RootElement
+    //             },
+    //             new JsonSerializerOptions
+    //             {
+    //                 WriteIndented = true
+    //             });
+    //     }
+    //     catch
+    //     {
+    //         jsonWithTimestamp = JsonSerializer.Serialize(
+    //             new
+    //             {
+    //                 timestamp,
+    //                 topic,
+    //                 rawPayload = payload
+    //             },
+    //             new JsonSerializerOptions
+    //             {
+    //                 WriteIndented = true
+    //             });
+    //     }
+    //
+    //     var entity = new TableEntity(
+    //         partitionKey: "arduino",
+    //         rowKey: Guid.NewGuid().ToString())
+    //     {
+    //         ["Topic"] = topic,
+    //         ["Json"] = jsonWithTimestamp,
+    //         ["Timestamp"] = timestamp
+    //     };
+    //     
+    //     await _tableClient.AddEntityAsync(entity);
+    //
+    //     _logger.LogInformation("Saved to Azure Table Storage.");
+    // }
     
     // Command for watering
     public async Task SendWaterCommandAsync(
@@ -143,13 +131,13 @@ public class MqttSensorService
             .WithPayload(payload)
             .Build();
 
-        Console.WriteLine("=== SENDING WATER COMMAND ===");
-        Console.WriteLine($"TOPIC: {topic}");
-        Console.WriteLine($"PAYLOAD: {payload}");
+        _logger.LogInformation("=== SENDING WATER COMMAND ===");
+        _logger.LogInformation($"TOPIC: {topic}");
+        _logger.LogInformation($"PAYLOAD: {payload}");
 
         await _client.PublishAsync(message);
 
-        Console.WriteLine("Water command sent.");
+        _logger.LogInformation("Water command sent.");
     }
     private async Task HandleMqttMessageToDatabase(MqttApplicationMessageReceivedEventArgs e)
     {
@@ -157,35 +145,39 @@ public class MqttSensorService
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            
-            if (!doc.RootElement.TryGetProperty("data", out var data))
-            {
-                Console.WriteLine("Payload missing 'data' field — skipping.");
-                return;
-            }
+            _logger.LogInformation(payload);
+            // if (!doc.RootElement.TryGetProperty("data", out var data))
+            // {
+            //     _logger.LogInformation("Payload missing 'data' field — skipping.");
+            //     return;
+            // }
 
             var sensorData = new SensorData
             {
-                PlantMAC       = data.TryGetProperty("mac", out var mac) ? mac.GetString() ?? "unknown" : "unknown",
+                PlantMAC       = doc.RootElement.TryGetProperty("mac", out var mac) ? mac.GetString() ?? "unknown" : "unknown",
                 Timestamp      = DateTime.UtcNow,
-                Temperature    = data.TryGetProperty("temp",  out var temp)  ? temp.GetDouble()  : 0,
-                AirHumidity    = data.TryGetProperty("hum",   out var hum)   ? hum.GetDouble()   : 0,
-                SoilHumidity   = data.TryGetProperty("soil",  out var soil)  ? soil.GetDouble()  : 0,
-                LightIntensity = data.TryGetProperty("light", out var light) ? light.GetDouble() : 0,
+                Temperature    = doc.RootElement.TryGetProperty("temp",  out var temp)  ? temp.GetDouble()  : 0,
+                AirHumidity    = doc.RootElement.TryGetProperty("hum",   out var hum)   ? hum.GetDouble()   : 0,
+                SoilHumidity   = doc.RootElement.TryGetProperty("soil",  out var soil)  ? soil.GetDouble()  : 0,
+                LightIntensity = doc.RootElement.TryGetProperty("light", out var light) ? light.GetDouble() : 0,
             };
-
-            await _sensorService.CreateSensorData(sensorData);
-            Console.WriteLine($"Saved | mac={sensorData.PlantMAC} temp={sensorData.Temperature} " +
-                              $"airHum={sensorData.AirHumidity} soilHum={sensorData.SoilHumidity} " +
-                              $"light={sensorData.LightIntensity}");
+            _logger.LogInformation($"Sensor: {sensorData}");
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var sensorService = scope.ServiceProvider.GetRequiredService<ISensorService>();
+                await sensorService.CreateSensorData(sensorData);
+            }
+            _logger.LogInformation($"Saved | mac={sensorData.PlantMAC} temp={sensorData.Temperature} " +
+                                   $"airHum={sensorData.AirHumidity} soilHum={sensorData.SoilHumidity} " +
+                                   $"light={sensorData.LightIntensity}");
         }
         catch (JsonException ex)
         {
-            Console.WriteLine($"Failed to parse payload: {ex.Message} | raw: {payload}");
+            _logger.LogInformation($"Failed to parse payload: {ex.Message} | raw: {payload}");
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            Console.WriteLine($"Sensor value out of range: {ex.Message}");
+            _logger.LogInformation($"Sensor value out of range: {ex.Message}");
         }
     }
 
