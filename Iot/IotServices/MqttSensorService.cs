@@ -9,7 +9,7 @@ using ServiceContracts;
 
 namespace IotServices;
 
-public class MqttSensorService
+public class MqttSensorService 
 {
     private readonly IMqttClient _client;
     private readonly IServiceProvider _serviceProvider;
