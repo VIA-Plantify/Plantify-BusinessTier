@@ -3,10 +3,10 @@ using GrpcRepositories;
 using GrpcRepositories.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Plantify.BusinessTier.Services;
 using RepositoryContracts;
 using Serilog;
 using ServiceContracts;
+using IotServices;
 using Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -119,7 +119,7 @@ builder.Services.AddScoped<IWateringRepository, WateringRepositoryGrpc>();
 builder.Services.AddScoped<ISensorRepository, SensorRepositoryGrpc>();
 
 
-// Services
+// IotServices
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPlantService, PlantService>();

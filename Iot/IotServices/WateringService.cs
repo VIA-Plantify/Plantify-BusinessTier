@@ -2,7 +2,7 @@ using Entities.Plant;
 using RepositoryContracts;
 using ServiceContracts;
 
-namespace Services;
+namespace IotServices;
 
 public class WateringService(IWateringRepository repository) : IWateringService
 {

@@ -38,7 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.prod.yml = docker-compose.prod.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Iot\Services\Services.csproj", "{2C37A593-563B-4E03-8EFE-A0519C7CCEFA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IotServices", "Iot\IotServices\IotServices.csproj", "{2C37A593-563B-4E03-8EFE-A0519C7CCEFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

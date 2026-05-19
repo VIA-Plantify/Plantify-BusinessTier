@@ -7,7 +7,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using ServiceContracts;
 
-namespace Plantify.BusinessTier.Services;
+namespace IotServices;
 
 public class MqttSensorService
 {
