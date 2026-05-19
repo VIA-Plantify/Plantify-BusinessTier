@@ -4,6 +4,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
 using MQTTnet.Client;
+using ServiceContracts;
 
 namespace Plantify.BusinessTier.Services;
 
@@ -11,6 +12,8 @@ public class MqttSensorService
 {
     private readonly IMqttClient _client;
     private readonly TableClient _tableClient;
+    private readonly ISensorService _sensorService;
+    private readonly IWateringService _wateringService;
 
     public MqttSensorService(IConfiguration configuration)
     {
@@ -113,9 +116,34 @@ public class MqttSensorService
             ["Json"] = jsonWithTimestamp,
             ["Timestamp"] = timestamp
         };
-
+        
         await _tableClient.AddEntityAsync(entity);
 
         Console.WriteLine("Saved to Azure Table Storage.");
+    }
+    
+    // Command for watering
+    public async Task SendWaterCommandAsync(
+        string macAddress,
+        int seconds)
+    {
+        await ConnectAsync();
+
+        var topic = $"arduino/{macAddress}/commands";
+
+        var payload = $"pump_on_{seconds}";
+
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithPayload(payload)
+            .Build();
+
+        Console.WriteLine("=== SENDING WATER COMMAND ===");
+        Console.WriteLine($"TOPIC: {topic}");
+        Console.WriteLine($"PAYLOAD: {payload}");
+
+        await _client.PublishAsync(message);
+
+        Console.WriteLine("Water command sent.");
     }
 }
