@@ -37,7 +37,7 @@ public static class ProtoUtils
             OptimalSoilHumidity = response.OptimalSoilHumidity,
             OptimalLightIntensity = response.OptimalLightIntensity,
             Scale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
-            AddedDate = response.AddedDate.ToDateTime(),
+            AddedDate = response.AddedDate?.ToDateTime() ?? default,
             ShouldPredictOptimal = response.ShouldPredictOptimal,
 
             SensorData = ParseSensorDataResponseToEntity(response.SensorData),

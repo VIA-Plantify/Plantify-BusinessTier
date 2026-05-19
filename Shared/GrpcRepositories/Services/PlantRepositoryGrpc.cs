@@ -29,7 +29,7 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
                     OptimalSoilHumidity = plant.OptimalSoilHumidity,
                     OptimalLightIntensity = plant.OptimalLightIntensity,
                     TemperatureScale = (GrpcRepositories.TemperatureScale)plant.Scale,
-                    AddedDate = Timestamp.FromDateTime(plant.AddedDate),
+                    AddedDate = Timestamp.FromDateTime(plant.AddedDate.ToUniversalTime()),
                     ShouldPredictOptimal = plant.ShouldPredictOptimal,
                 });
 
