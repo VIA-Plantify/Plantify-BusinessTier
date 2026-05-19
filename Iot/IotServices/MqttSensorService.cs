@@ -151,21 +151,37 @@ public class MqttSensorService
             //     _logger.LogInformation("Payload missing 'data' field — skipping.");
             //     return;
             // }
-
+            var plantMac = doc.RootElement.TryGetProperty("mac", out var mac) ? mac.GetString() ?? "unknown" : "unknown";
             var sensorData = new SensorData
             {
-                PlantMAC       = doc.RootElement.TryGetProperty("mac", out var mac) ? mac.GetString() ?? "unknown" : "unknown",
+                PlantMAC       = plantMac,
                 Timestamp      = DateTime.UtcNow,
                 Temperature    = doc.RootElement.TryGetProperty("temp",  out var temp)  ? temp.GetDouble()  : 0,
                 AirHumidity    = doc.RootElement.TryGetProperty("hum",   out var hum)   ? hum.GetDouble()   : 0,
                 SoilHumidity   = doc.RootElement.TryGetProperty("soil",  out var soil)  ? soil.GetDouble()  : 0,
                 LightIntensity = doc.RootElement.TryGetProperty("light", out var light) ? light.GetDouble() : 0,
             };
-            _logger.LogInformation($"Sensor: {sensorData}");
+            _logger.LogInformation($"Sensor: {sensorData.AirHumidity}");
             using (var scope = _serviceProvider.CreateScope())
             {
                 var sensorService = scope.ServiceProvider.GetRequiredService<ISensorService>();
                 await sensorService.CreateSensorData(sensorData);
+            }
+
+            var waterLevel = doc.RootElement.TryGetProperty("waterLevel", out var waterLvl) ? waterLvl.GetDouble() : 100;
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var wateringService = scope.ServiceProvider.GetRequiredService<IWateringService>();
+                Watering lastWaterTimeWatering;
+                lastWaterTimeWatering = await wateringService.GetLastWithPumpTimeAsync(plantMac);
+                var watering = new Watering
+                {
+                    PumpTimeInSeconds = 0,
+                    WaterLevel = waterLevel,
+                    LastWaterTime = lastWaterTimeWatering?.LastWaterTime ?? default,
+                };
+
+                await wateringService.CreateAsync(plantMac,watering);
             }
             _logger.LogInformation($"Saved | mac={sensorData.PlantMAC} temp={sensorData.Temperature} " +
                                    $"airHum={sensorData.AirHumidity} soilHum={sensorData.SoilHumidity} " +

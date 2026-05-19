@@ -27,4 +27,5 @@ message PreviousWateringResponses{
 service WateringServiceProto {
   rpc Create(CreateWateringRequest) returns (google.protobuf.Empty);
   rpc GetLatest(GetLatestWateringDataRequest) returns (WateringResponse);
+  rpc GetLatestWithPumpTime(GetLatestWateringDataRequest) returns (WateringResponse);
 }

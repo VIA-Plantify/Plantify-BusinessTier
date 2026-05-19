@@ -9,4 +9,5 @@ public interface IPlantRepository
     Task<Plant> GetPlantAsync(string username, string plantMAC, int? numberOfSensorReadings, int? numberOfWateringReadings);
     Task DeleteAsync(string username, string plantMAC);
     Task UpdateAsync(Plant plant);
+    Task<IEnumerable<Plant>>  GetAllPlantsAsync();
 }

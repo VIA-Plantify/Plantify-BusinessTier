@@ -11,6 +11,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8081"
       Grpc__ServerUrl: http://grpcserver:10081
+      ML_API_KEY: http://plantify-ml-api:12080
     ports:
       - "8081:8081"
     networks:

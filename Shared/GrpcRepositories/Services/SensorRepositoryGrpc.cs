@@ -15,6 +15,7 @@ public class SensorRepositoryGrpc(SensorServiceProto.SensorServiceProtoClient cl
             var response = await _client.CreateAsync(new CreateSensorDataRequest
             {
                 SoilHumidity = sensorData.SoilHumidity,
+                AirHumidity = sensorData.AirHumidity,
                 Temperature = sensorData.Temperature,
                 LightIntensity = sensorData.LightIntensity,
                 PlantMAC = sensorData.PlantMAC,

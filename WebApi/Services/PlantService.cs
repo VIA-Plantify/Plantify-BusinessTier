@@ -106,6 +106,11 @@ public class PlantService : IPlantService
         }
     }
 
+    public async Task<IEnumerable<Plant>> GetAllPlantsAsync()
+    {
+        return await _repository.GetAllPlantsAsync();
+    }
+
     public async Task ConvertTemperatureAsync(string plantMAC, string username, TemperatureScale scale)
     {
         await VerifyUserExistsAsync(username);

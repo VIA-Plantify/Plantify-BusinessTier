@@ -37,7 +37,7 @@ public static class ProtoUtils
             OptimalSoilHumidity = response.OptimalSoilHumidity,
             OptimalLightIntensity = response.OptimalLightIntensity,
             Scale = (Entities.Plant.TemperatureScale)response.TemperatureScale,
-            AddedDate = response.AddedDate?.ToDateTime() ?? default,
+            AddedDate = response.AddedDate?.ToDateTime().ToUniversalTime() ?? default,
             ShouldPredictOptimal = response.ShouldPredictOptimal,
 
             SensorData = ParseSensorDataResponseToEntity(response.SensorData),
@@ -51,7 +51,7 @@ public static class ProtoUtils
     {
         if (response is null)
         {
-            return null;
+            return new SensorData();
         }
 
         return new SensorData
@@ -60,20 +60,21 @@ public static class ProtoUtils
             SoilHumidity = response.SoilHumidity,
             LightIntensity = response.LightIntensity,
             Temperature = response.Temperature,
+            Timestamp = response.Timestamp.ToDateTime().ToUniversalTime(),
         };
     }
     public static Watering ParseWateringResponseToEntity(WateringResponse? response)
     {
         if (response is null)
         {
-            return null;
+            return new Watering();
         }
 
         return new Watering
         {
             PumpTimeInSeconds = response.PumpTimeInSeconds,
             WaterLevel = response.WaterLevel,
-            LastWaterTime = response.LastWaterTime?.ToDateTime() ?? default,
+            LastWaterTime = response.LastWaterTime?.ToDateTime().ToUniversalTime() ?? default,
         };
     }
 

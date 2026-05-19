@@ -128,7 +128,7 @@ builder.Services.AddScoped<ISensorService, SensorService>();
 
 //MQTT
 builder.Services.AddSingleton<MqttSensorService>();
-
+builder.Services.AddHostedService<ScheduledWateringService>();
 
 
 var app = builder.Build();

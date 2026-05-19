@@ -9,7 +9,7 @@ public class WateringRepositoryGrpc(WateringServiceProto.WateringServiceProtoCli
 {
     private readonly WateringServiceProto.WateringServiceProtoClient _client = client;
     
-    public async Task Create(string plantMac, Watering watering)
+    public async Task CreateAsync(string plantMac, Watering watering)
     {
         try
         {
@@ -30,11 +30,32 @@ public class WateringRepositoryGrpc(WateringServiceProto.WateringServiceProtoCli
             throw new InvalidOperationException($"Failed to log watering record: {ex.Status.Detail}");
         }    }
 
-    public async Task<Watering?> Get(string plantMac)
+    public async Task<Watering?> GetAsync(string plantMac)
     {
         try
         {
             var response = await _client.GetLatestAsync(new GetLatestWateringDataRequest
+            {
+                PlantMAC = plantMac
+            });
+
+            return ProtoUtils.ParseWateringResponseToEntity(response);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new InvalidOperationException($"Watering with MAC {plantMac} not found."); 
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error retrieving watering: {ex.Status.Detail}");
+        }
+    }
+
+    public async Task<Watering?> GetLastWithPumpTimeAsync(string plantMac)
+    {
+        try
+        {
+            var response = await _client.GetLatestWithPumpTimeAsync(new GetLatestWateringDataRequest
             {
                 PlantMAC = plantMac
             });

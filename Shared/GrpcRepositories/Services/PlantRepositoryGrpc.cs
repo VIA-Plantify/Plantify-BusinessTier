@@ -147,5 +147,20 @@ public class PlantRepositoryGrpc(PlantServiceProto.PlantServiceProtoClient clien
         }
     }
 
+    public async Task<IEnumerable<Plant>> GetAllPlantsAsync()
+    {
+        try
+        {
+            var response = await _client.GetAllPlantsAsync(new Empty()
+            {
+            });
+
+            return response.Plants.Select(ProtoUtils.ParsePlantResponseToEntity);
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error retrieving plants: {ex.Status.Detail}");
+        }
+    }
     
 }
