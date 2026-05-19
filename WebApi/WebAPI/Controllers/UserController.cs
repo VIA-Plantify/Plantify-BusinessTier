@@ -88,7 +88,7 @@ public class UserController(ILogger<UserController> logger,IUserService userServ
     /// <summary>Retrieves a user by their email and returns the corresponding UserDto.</summary>
     /// <param name="email">The email of the user to retrieve. This parameter is required as per the route configuration.</param>
     /// <return>Returns the UserDto if the user is found; otherwise, returns an appropriate error response (e.g., BadRequest if invalid data is encountered, NotFound if the user does not exist).</return>
-    [HttpGet("u/{email}")]
+    [HttpGet("email/{email}")]
     public async Task<ActionResult<UserDto>> GetUserByEmail([FromRoute] string? email)
     {
         try

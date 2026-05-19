@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using RepositoryContracts;
 using Serilog;
 using ServiceContracts;
+using IotServices;
 using Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,6 +75,12 @@ builder.Services.AddGrpcClient<PlantServiceProto.PlantServiceProtoClient>(option
 {
     options.Address = new Uri(grpcAddress);
 });
+builder.Services.AddGrpcClient<
+    SensorServiceProto.SensorServiceProtoClient>(options => { options.Address = new Uri(grpcAddress); });
+
+builder.Services.AddGrpcClient<
+    WateringServiceProto.WateringServiceProtoClient>(options => { options.Address = new Uri(grpcAddress); });
+
 
 
 // Configure JWT
@@ -108,14 +115,20 @@ builder.Services
 builder.Services.AddScoped<IAuthRepository, AuthRepositoryGrpc>();
 builder.Services.AddScoped<IUserRepository, UserRepositoryGrpc>();
 builder.Services.AddScoped<IPlantRepository, PlantRepositoryGrpc>();
+builder.Services.AddScoped<IWateringRepository, WateringRepositoryGrpc>();
+builder.Services.AddScoped<ISensorRepository, SensorRepositoryGrpc>();
 
 
-
-
-// Services
+// IotServices
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPlantService, PlantService>();
+builder.Services.AddScoped<IWateringService, WateringService>();
+builder.Services.AddScoped<ISensorService, SensorService>();
+
+//MQTT
+builder.Services.AddSingleton<MqttSensorService>();
+builder.Services.AddHostedService<ScheduledWateringService>();
 
 
 var app = builder.Build();
@@ -124,11 +137,37 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+
+
+var mqttService =
+    app.Services.GetRequiredService<MqttSensorService>();
+
+await mqttService.ConnectAsync();
+
 app.UseRouting();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapPost(
+    "/arduino/{macAddress}/water/{seconds}",
+    async (
+        string macAddress,
+        int seconds,
+        MqttSensorService mqttService) =>
+    {
+        await mqttService.SendWaterCommandAsync(
+            macAddress,
+            seconds);
+
+        return Results.Ok(new
+        {
+            message = "Water command sent",
+            macAddress,
+            seconds
+        });
+    });
 
 app.Run();
