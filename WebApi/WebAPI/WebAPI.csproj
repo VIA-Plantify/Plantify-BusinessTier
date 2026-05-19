@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Iot\Services\Services.csproj" />
       <ProjectReference Include="..\..\PlantifyShared\GrpcRepositories\GrpcRepositories.csproj" />
       <ProjectReference Include="..\..\Shared\GrpcRepositories\GrpcRepositories.csproj" />
       <ProjectReference Include="..\Entities\Entities.csproj" />
