@@ -58,3 +58,4 @@ nunit-*.xml
 .env.local
 .env.dev
 .env
+/PlantifyBusinessTier.sln.DotSettings.user

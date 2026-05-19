@@ -5,5 +5,4 @@ public record WateringDto
     public int? PumpTimeInSeconds { get; init; }
     public double? WaterLevel { get; init; }
     public DateTime? LastWaterTime { get; init; }
-    public DateTime? PredictedFutureWaterTime { get; init; }
 }

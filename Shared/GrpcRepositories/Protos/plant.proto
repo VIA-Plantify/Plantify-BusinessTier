@@ -6,6 +6,8 @@ package plant;
 import "google/protobuf/empty.proto";
 import "Protos/sensors.proto";
 import "Protos/watering.proto";
+import "google/protobuf/timestamp.proto";
+
 // enums
 enum TemperatureScale {
   C = 0;
@@ -17,13 +19,16 @@ message CreatePlantRequest {
   string username = 1;
   string name = 2;
   string MAC = 3;
-
+  
   double optimalTemperature = 4;
   double optimalAirHumidity = 5;
   double optimalSoilHumidity = 6;
   double optimalLightIntensity = 7;
-
+  int64 optimalLightPeriodSeconds = 8;
+  
   TemperatureScale temperatureScale = 9;
+  google.protobuf.Timestamp AddedDate = 10;
+  bool ShouldPredictOptimal = 11;
 }
 
 message GetPlantsByUsernameRequest {
@@ -54,8 +59,8 @@ message UpdatePlantRequest {
   double optimalSoilHumidity = 6;
   double optimalLightIntensity = 7;
   int64 optimalLightPeriodSeconds = 8;
-
   TemperatureScale temperatureScale = 9;
+  bool ShouldPredictOptimal = 10;
 }
 
 // Responses
@@ -72,13 +77,16 @@ message PlantResponse {
   int64 optimalLightPeriodSeconds = 8;
 
   TemperatureScale temperatureScale = 9;
-
+  
   // Sensor state
   sensors.SensorResponse sensorData = 10;
   sensors.PreviousSensorResponses previousSensorReadings = 11;
   // Watering
   watering.WateringResponse watering = 12;
   watering.PreviousWateringResponses previousWateringReadings = 13;
+
+  google.protobuf.Timestamp AddedDate = 14;
+  bool ShouldPredictOptimal = 15;
 }
 
 message GetManyPlantResponse {

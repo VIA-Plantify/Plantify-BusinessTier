@@ -26,14 +26,7 @@ public class Plant
     public TemperatureScale Scale
     {
         get => _scale;
-        set
-        {
-            if (_scale == value)
-                return;
-
-            _optimalTemperature = TemperatureUtility.ConvertScale(_scale, value, _optimalTemperature);
-            _scale = value;
-        }
+        set => _scale = value;
     }
 
     public double OptimalTemperature
@@ -78,4 +71,6 @@ public class Plant
             _optimalLightIntensity = value;
         }
     }
+    public DateTime AddedDate = DateTime.Now;
+    public bool ShouldPredictOptimal = false;
 }

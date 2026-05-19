@@ -2,6 +2,7 @@ using DTOs.Plant;
 using Entities.Plant;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using ServiceContracts;
 
 namespace WebAPI.Controllers;
@@ -30,6 +31,8 @@ public class PlantController(IPlantService plantService) : ControllerBase
                 OptimalAirHumidity = dto.OptimalAirHumidity,
                 OptimalSoilHumidity = dto.OptimalSoilHumidity,
                 OptimalLightIntensity = dto.OptimalLightIntensity,
+                AddedDate = dto.AddedDate,
+                ShouldPredictOptimal = dto.ShouldPredictOptimal,
             };
             var created = await plantService.CreateAsync(plant);
             CheckPlantDataIntegrity(created);
@@ -139,7 +142,8 @@ public class PlantController(IPlantService plantService) : ControllerBase
             {
                 MAC = existingPlant.MAC,
                 Name = dto.Name,
-                Username = dto.Username,
+                Username = loggedInUsername,
+                Scale = dto.Scale,
                 OptimalTemperature = dto.OptimalTemperature,
                 OptimalAirHumidity = dto.OptimalAirHumidity,
                 OptimalSoilHumidity = dto.OptimalSoilHumidity,
@@ -189,6 +193,33 @@ public class PlantController(IPlantService plantService) : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, "An internal error occurred");
+        }
+    }
+
+    [HttpPut("temperature/{plantMac}")]
+    public async Task<ActionResult> ConvertTemperature([FromRoute] string plantMAC, [FromQuery] TemperatureScale scale)
+    {
+        var loggedInUsername = User.FindFirst("Username")?.Value;
+        if (string.IsNullOrEmpty(loggedInUsername))
+        {
+            return Unauthorized("User identity not found in token.");
+        }
+        try
+        {
+            await plantService.ConvertTemperatureAsync(plantMAC, loggedInUsername, scale);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
         }
     }
  

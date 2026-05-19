@@ -9,22 +9,20 @@ message WateringResponse{
   string plantMAC = 1;
   int32 Id = 2;
   google.protobuf.Timestamp LastWaterTime = 3;
-  google.protobuf.Timestamp PredictedFutureWaterTime = 4;
-  int32 PumpTimeInSeconds = 5;
-  double WaterLevel = 6;
+  int32 PumpTimeInSeconds = 4;
+  double WaterLevel = 5;
 }
 message CreateWateringRequest{
   string plantMAC = 1;
   google.protobuf.Timestamp LastWaterTime = 2;
-  google.protobuf.Timestamp PredictedFutureWaterTime = 3;
-  int32 PumpTimeInSeconds = 4;
-  double WaterLevel = 5;
+  int32 PumpTimeInSeconds = 3;
+  double WaterLevel = 4;
 }
 message GetLatestWateringDataRequest{
   string plantMAC = 1;
 }
 message PreviousWateringResponses{
-  repeated WateringResponse PreviousWateringReadings = 1;
+  repeated WateringResponse Readings = 1;
 }
 service WateringServiceProto {
   rpc Create(CreateWateringRequest) returns (google.protobuf.Empty);
